@@ -1,12 +1,13 @@
 # Dragon Island
 
+![Build IPA](https://github.com/Coleslaw510/dragon-island/actions/workflows/build-ipa.yml/badge.svg)
+
 An offline, single-player creature sanctuary for iPhone and iPad. The app is built
 with SwiftUI, SpriteKit and Swift, targets iOS 18, runs in landscape and keeps the
 screen free of popups, promo banners, battle passes and live-ops calendars.
 
-This repository also contains earlier experiments (`server.py`, `nfl-stats`,
-`OpenHandsClient`, `dc-legacy-private-server`). They are not part of the game and
-can be ignored for Dragon Island work.
+The `DragonIsland`, `tools` and `project.yml` paths are the game. The local
+workspace also holds unrelated experiments; they are not part of this repository.
 
 ## Milestone 1 status
 
