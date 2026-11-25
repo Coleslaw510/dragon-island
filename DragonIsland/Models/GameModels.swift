@@ -38,6 +38,8 @@ struct OwnedDragon: Codable, Identifiable, Hashable, Sendable {
     var tileX: Int
     var tileY: Int
     var hatchedAt: Date
+
+    var tile: TileCoordinate { TileCoordinate(x: tileX, y: tileY) }
 }
 
 enum PlacementKind: String, Codable, CaseIterable, Hashable, Sendable {
