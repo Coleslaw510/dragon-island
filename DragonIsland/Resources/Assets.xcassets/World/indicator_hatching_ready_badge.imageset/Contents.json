@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "indicator_hatching_ready_badge.png",
+      "idiom": "universal",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "author": "dragon-island-slicer",
+    "version": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "egg_metal.png",
+      "idiom": "universal",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "author": "dragon-island-slicer",
+    "version": 1
+  }
+}

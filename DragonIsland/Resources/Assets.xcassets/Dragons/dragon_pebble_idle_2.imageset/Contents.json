@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "dragon_pebble_idle_2.png",
+      "idiom": "universal",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "author": "dragon-island-slicer",
+    "version": 1
+  }
+}

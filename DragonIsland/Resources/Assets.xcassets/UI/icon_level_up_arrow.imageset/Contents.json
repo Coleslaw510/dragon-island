@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "icon_level_up_arrow.png",
+      "idiom": "universal",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "author": "dragon-island-slicer",
+    "version": 1
+  }
+}

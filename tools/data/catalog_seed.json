@@ -1,0 +1,44 @@
+{
+  "elements": {
+    "fire":      { "displayName": "Fire",      "colorHex": "#F26B3A", "habitatName": "Ember Hollow",  "habitatCapacity": 4, "habitatCost": 350 },
+    "water":     { "displayName": "Water",     "colorHex": "#3FA9F5", "habitatName": "Tide Pools",    "habitatCapacity": 4, "habitatCost": 350 },
+    "earth":     { "displayName": "Earth",     "colorHex": "#A9754B", "habitatName": "Stone Terrace", "habitatCapacity": 4, "habitatCost": 400 },
+    "air":       { "displayName": "Air",       "colorHex": "#BFD8E8", "habitatName": "Sky Perch",     "habitatCapacity": 4, "habitatCost": 400 },
+    "lightning": { "displayName": "Lightning", "colorHex": "#F2C230", "habitatName": "Storm Ridge",   "habitatCapacity": 4, "habitatCost": 450 },
+    "plant":     { "displayName": "Plant",     "colorHex": "#59B84C", "habitatName": "Verdant Grove", "habitatCapacity": 4, "habitatCost": 450 },
+    "ice":       { "displayName": "Ice",       "colorHex": "#8FD8E8", "habitatName": "Frost Hollow",  "habitatCapacity": 4, "habitatCost": 500 },
+    "light":     { "displayName": "Light",     "colorHex": "#F5E27A", "habitatName": "Sunlit Court",  "habitatCapacity": 4, "habitatCost": 550 },
+    "metal":     { "displayName": "Metal",     "colorHex": "#9AA6B2", "habitatName": "Iron Yard",     "habitatCapacity": 4, "habitatCost": 550 },
+    "star":      { "displayName": "Star",      "colorHex": "#B48CE8", "habitatName": "Starfall Glade","habitatCapacity": 4, "habitatCost": 600 }
+  },
+  "dragons": [
+    { "id": "blaze",   "displayName": "Blaze",   "element": "fire",      "actionName": "breathing_fire",   "baseHealth": 100, "baseAttack": 12, "baseDefense": 9,  "baseSpeed": 10 },
+    { "id": "tide",    "displayName": "Tide",    "element": "water",     "actionName": "shooting_water",   "baseHealth": 105, "baseAttack": 10, "baseDefense": 11, "baseSpeed": 9  },
+    { "id": "pebble",  "displayName": "Pebble",  "element": "earth",     "actionName": "rock_slam",        "baseHealth": 120, "baseAttack": 11, "baseDefense": 14, "baseSpeed": 6  },
+    { "id": "breeze",  "displayName": "Breeze",  "element": "air",       "actionName": "wind_gust",        "baseHealth": 95,  "baseAttack": 10, "baseDefense": 8,  "baseSpeed": 14 },
+    { "id": "spark",   "displayName": "Spark",   "element": "lightning", "actionName": "lightning_bolt",   "baseHealth": 98,  "baseAttack": 13, "baseDefense": 8,  "baseSpeed": 12 },
+    { "id": "fern",    "displayName": "Fern",    "element": "plant",     "actionName": "leaf_vine_blast",  "baseHealth": 110, "baseAttack": 10, "baseDefense": 12, "baseSpeed": 8  },
+    { "id": "frost",   "displayName": "Frost",   "element": "ice",       "actionName": "ice_breath",       "baseHealth": 108, "baseAttack": 12, "baseDefense": 11, "baseSpeed": 8  },
+    { "id": "gleam",   "displayName": "Gleam",   "element": "light",     "actionName": "light_beam",       "baseHealth": 100, "baseAttack": 13, "baseDefense": 10, "baseSpeed": 10 },
+    { "id": "rivet",   "displayName": "Rivet",   "element": "metal",     "actionName": "metal_blast",      "baseHealth": 115, "baseAttack": 12, "baseDefense": 15, "baseSpeed": 7  },
+    { "id": "twinkle", "displayName": "Twinkle", "element": "star",      "actionName": "star_blast",       "baseHealth": 96,  "baseAttack": 14, "baseDefense": 9,  "baseSpeed": 13 }
+  ],
+  "buildings": [
+    { "id": "hatchery",            "displayName": "Hatchery",            "texture": "building_hatchery",            "cost": 500,  "maxLevel": 3, "footprint": [1, 1], "description": "Hatches eggs into new dragons." },
+    { "id": "food_farm",           "displayName": "Food Farm",           "texture": "building_food_farm",           "cost": 250,  "maxLevel": 3, "footprint": [1, 1], "description": "Grows food for hungry dragons." },
+    { "id": "breeding_corral",     "displayName": "Breeding Corral",     "texture": "building_breeding_corral",     "cost": 750,  "maxLevel": 3, "footprint": [1, 1], "description": "Pairs two dragons for breeding." },
+    { "id": "breeding_den",        "displayName": "Breeding Den",        "texture": "building_breeding_den",        "cost": 900,  "maxLevel": 3, "footprint": [1, 1], "description": "A cozy den for breeding pairs." },
+    { "id": "incubator_hatchery",  "displayName": "Incubator Hatchery",  "texture": "building_incubator_hatchery",  "cost": 1100, "maxLevel": 3, "footprint": [1, 1], "description": "Speeds up egg incubation." }
+  ],
+  "starterLayout": [
+    { "kind": "habitat",  "definitionID": "habitat_fire",    "tileX": 3, "tileY": 2 },
+    { "kind": "habitat",  "definitionID": "habitat_plant",   "tileX": 1, "tileY": 3 },
+    { "kind": "building", "definitionID": "food_farm",       "tileX": 5, "tileY": 4 },
+    { "kind": "building", "definitionID": "hatchery",        "tileX": 2, "tileY": 5 },
+    { "kind": "building", "definitionID": "breeding_corral", "tileX": 6, "tileY": 2 }
+  ],
+  "starterDragons": [
+    { "definitionID": "blaze", "level": 2, "tileX": 3, "tileY": 2 },
+    { "definitionID": "fern",  "level": 1, "tileX": 1, "tileY": 3 }
+  ]
+}

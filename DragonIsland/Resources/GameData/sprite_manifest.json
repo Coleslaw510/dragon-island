@@ -1,0 +1,661 @@
+{
+  "schemaVersion": 1,
+  "dragons": {
+    "blaze": {
+      "element": "fire",
+      "frameSize": {
+        "width": 174,
+        "height": 134
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_blaze_idle_0",
+            "dragon_blaze_idle_1",
+            "dragon_blaze_idle_2",
+            "dragon_blaze_idle_3",
+            "dragon_blaze_idle_4",
+            "dragon_blaze_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_blaze_walk_0",
+            "dragon_blaze_walk_1",
+            "dragon_blaze_walk_2",
+            "dragon_blaze_walk_3",
+            "dragon_blaze_walk_4",
+            "dragon_blaze_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_blaze_fly_0",
+            "dragon_blaze_fly_1",
+            "dragon_blaze_fly_2",
+            "dragon_blaze_fly_3",
+            "dragon_blaze_fly_4",
+            "dragon_blaze_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_blaze_action_0",
+            "dragon_blaze_action_1",
+            "dragon_blaze_action_2",
+            "dragon_blaze_action_3",
+            "dragon_blaze_action_4",
+            "dragon_blaze_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "tide": {
+      "element": "water",
+      "frameSize": {
+        "width": 176,
+        "height": 142
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_tide_idle_0",
+            "dragon_tide_idle_1",
+            "dragon_tide_idle_2",
+            "dragon_tide_idle_3",
+            "dragon_tide_idle_4",
+            "dragon_tide_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_tide_walk_0",
+            "dragon_tide_walk_1",
+            "dragon_tide_walk_2",
+            "dragon_tide_walk_3",
+            "dragon_tide_walk_4",
+            "dragon_tide_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_tide_fly_0",
+            "dragon_tide_fly_1",
+            "dragon_tide_fly_2",
+            "dragon_tide_fly_3",
+            "dragon_tide_fly_4",
+            "dragon_tide_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_tide_action_0",
+            "dragon_tide_action_1",
+            "dragon_tide_action_2",
+            "dragon_tide_action_3",
+            "dragon_tide_action_4",
+            "dragon_tide_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "pebble": {
+      "element": "earth",
+      "frameSize": {
+        "width": 168,
+        "height": 149
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_pebble_idle_0",
+            "dragon_pebble_idle_1",
+            "dragon_pebble_idle_2",
+            "dragon_pebble_idle_3",
+            "dragon_pebble_idle_4",
+            "dragon_pebble_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_pebble_walk_0",
+            "dragon_pebble_walk_1",
+            "dragon_pebble_walk_2",
+            "dragon_pebble_walk_3",
+            "dragon_pebble_walk_4",
+            "dragon_pebble_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_pebble_fly_0",
+            "dragon_pebble_fly_1",
+            "dragon_pebble_fly_2",
+            "dragon_pebble_fly_3",
+            "dragon_pebble_fly_4",
+            "dragon_pebble_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_pebble_action_0",
+            "dragon_pebble_action_1",
+            "dragon_pebble_action_2",
+            "dragon_pebble_action_3",
+            "dragon_pebble_action_4",
+            "dragon_pebble_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "breeze": {
+      "element": "air",
+      "frameSize": {
+        "width": 161,
+        "height": 145
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_breeze_idle_0",
+            "dragon_breeze_idle_1",
+            "dragon_breeze_idle_2",
+            "dragon_breeze_idle_3",
+            "dragon_breeze_idle_4",
+            "dragon_breeze_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_breeze_walk_0",
+            "dragon_breeze_walk_1",
+            "dragon_breeze_walk_2",
+            "dragon_breeze_walk_3",
+            "dragon_breeze_walk_4",
+            "dragon_breeze_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_breeze_fly_0",
+            "dragon_breeze_fly_1",
+            "dragon_breeze_fly_2",
+            "dragon_breeze_fly_3",
+            "dragon_breeze_fly_4",
+            "dragon_breeze_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_breeze_action_0",
+            "dragon_breeze_action_1",
+            "dragon_breeze_action_2",
+            "dragon_breeze_action_3",
+            "dragon_breeze_action_4",
+            "dragon_breeze_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "spark": {
+      "element": "lightning",
+      "frameSize": {
+        "width": 175,
+        "height": 144
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_spark_idle_0",
+            "dragon_spark_idle_1",
+            "dragon_spark_idle_2",
+            "dragon_spark_idle_3",
+            "dragon_spark_idle_4",
+            "dragon_spark_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_spark_walk_0",
+            "dragon_spark_walk_1",
+            "dragon_spark_walk_2",
+            "dragon_spark_walk_3",
+            "dragon_spark_walk_4",
+            "dragon_spark_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_spark_fly_0",
+            "dragon_spark_fly_1",
+            "dragon_spark_fly_2",
+            "dragon_spark_fly_3",
+            "dragon_spark_fly_4",
+            "dragon_spark_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_spark_action_0",
+            "dragon_spark_action_1",
+            "dragon_spark_action_2",
+            "dragon_spark_action_3",
+            "dragon_spark_action_4",
+            "dragon_spark_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "fern": {
+      "element": "plant",
+      "frameSize": {
+        "width": 193,
+        "height": 137
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_fern_idle_0",
+            "dragon_fern_idle_1",
+            "dragon_fern_idle_2",
+            "dragon_fern_idle_3",
+            "dragon_fern_idle_4",
+            "dragon_fern_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_fern_walk_0",
+            "dragon_fern_walk_1",
+            "dragon_fern_walk_2",
+            "dragon_fern_walk_3",
+            "dragon_fern_walk_4",
+            "dragon_fern_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_fern_fly_0",
+            "dragon_fern_fly_1",
+            "dragon_fern_fly_2",
+            "dragon_fern_fly_3",
+            "dragon_fern_fly_4",
+            "dragon_fern_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_fern_action_0",
+            "dragon_fern_action_1",
+            "dragon_fern_action_2",
+            "dragon_fern_action_3",
+            "dragon_fern_action_4",
+            "dragon_fern_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "frost": {
+      "element": "ice",
+      "frameSize": {
+        "width": 176,
+        "height": 138
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_frost_idle_0",
+            "dragon_frost_idle_1",
+            "dragon_frost_idle_2",
+            "dragon_frost_idle_3",
+            "dragon_frost_idle_4",
+            "dragon_frost_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_frost_walk_0",
+            "dragon_frost_walk_1",
+            "dragon_frost_walk_2",
+            "dragon_frost_walk_3",
+            "dragon_frost_walk_4",
+            "dragon_frost_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_frost_fly_0",
+            "dragon_frost_fly_1",
+            "dragon_frost_fly_2",
+            "dragon_frost_fly_3",
+            "dragon_frost_fly_4",
+            "dragon_frost_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_frost_action_0",
+            "dragon_frost_action_1",
+            "dragon_frost_action_2",
+            "dragon_frost_action_3",
+            "dragon_frost_action_4",
+            "dragon_frost_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "gleam": {
+      "element": "light",
+      "frameSize": {
+        "width": 179,
+        "height": 136
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_gleam_idle_0",
+            "dragon_gleam_idle_1",
+            "dragon_gleam_idle_2",
+            "dragon_gleam_idle_3",
+            "dragon_gleam_idle_4",
+            "dragon_gleam_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_gleam_walk_0",
+            "dragon_gleam_walk_1",
+            "dragon_gleam_walk_2",
+            "dragon_gleam_walk_3",
+            "dragon_gleam_walk_4",
+            "dragon_gleam_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_gleam_fly_0",
+            "dragon_gleam_fly_1",
+            "dragon_gleam_fly_2",
+            "dragon_gleam_fly_3",
+            "dragon_gleam_fly_4",
+            "dragon_gleam_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_gleam_action_0",
+            "dragon_gleam_action_1",
+            "dragon_gleam_action_2",
+            "dragon_gleam_action_3",
+            "dragon_gleam_action_4",
+            "dragon_gleam_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "rivet": {
+      "element": "metal",
+      "frameSize": {
+        "width": 178,
+        "height": 137
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_rivet_idle_0",
+            "dragon_rivet_idle_1",
+            "dragon_rivet_idle_2",
+            "dragon_rivet_idle_3",
+            "dragon_rivet_idle_4",
+            "dragon_rivet_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_rivet_walk_0",
+            "dragon_rivet_walk_1",
+            "dragon_rivet_walk_2",
+            "dragon_rivet_walk_3",
+            "dragon_rivet_walk_4",
+            "dragon_rivet_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_rivet_fly_0",
+            "dragon_rivet_fly_1",
+            "dragon_rivet_fly_2",
+            "dragon_rivet_fly_3",
+            "dragon_rivet_fly_4",
+            "dragon_rivet_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_rivet_action_0",
+            "dragon_rivet_action_1",
+            "dragon_rivet_action_2",
+            "dragon_rivet_action_3",
+            "dragon_rivet_action_4",
+            "dragon_rivet_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "twinkle": {
+      "element": "star",
+      "frameSize": {
+        "width": 186,
+        "height": 123
+      },
+      "animations": {
+        "idle": {
+          "frames": [
+            "dragon_twinkle_idle_0",
+            "dragon_twinkle_idle_1",
+            "dragon_twinkle_idle_2",
+            "dragon_twinkle_idle_3",
+            "dragon_twinkle_idle_4",
+            "dragon_twinkle_idle_5"
+          ],
+          "fps": 6,
+          "loop": true
+        },
+        "walk": {
+          "frames": [
+            "dragon_twinkle_walk_0",
+            "dragon_twinkle_walk_1",
+            "dragon_twinkle_walk_2",
+            "dragon_twinkle_walk_3",
+            "dragon_twinkle_walk_4",
+            "dragon_twinkle_walk_5"
+          ],
+          "fps": 8,
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "dragon_twinkle_fly_0",
+            "dragon_twinkle_fly_1",
+            "dragon_twinkle_fly_2",
+            "dragon_twinkle_fly_3",
+            "dragon_twinkle_fly_4",
+            "dragon_twinkle_fly_5"
+          ],
+          "fps": 10,
+          "loop": true
+        },
+        "action": {
+          "frames": [
+            "dragon_twinkle_action_0",
+            "dragon_twinkle_action_1",
+            "dragon_twinkle_action_2",
+            "dragon_twinkle_action_3",
+            "dragon_twinkle_action_4",
+            "dragon_twinkle_action_5"
+          ],
+          "fps": 8,
+          "loop": false
+        }
+      }
+    }
+  },
+  "world": {
+    "starter_island": {
+      "frames": [
+        "island_starter_0",
+        "island_starter_1",
+        "island_starter_2",
+        "island_starter_3",
+        "island_starter_4",
+        "island_starter_5"
+      ],
+      "fps": 4,
+      "loop": true
+    }
+  },
+  "textures": {
+    "habitats": {
+      "lightning": "habitat_lightning",
+      "light": "habitat_light",
+      "metal": "habitat_metal",
+      "star": "habitat_star",
+      "fire": "habitat_fire",
+      "water": "habitat_water",
+      "earth": "habitat_earth",
+      "air": "habitat_air",
+      "plant": "habitat_plant",
+      "ice": "habitat_ice"
+    },
+    "eggs": {
+      "fire": "egg_fire",
+      "water": "egg_water",
+      "earth": "egg_earth",
+      "air": "egg_air",
+      "lightning": "egg_lightning",
+      "plant": "egg_plant",
+      "ice": "egg_ice",
+      "light": "egg_light",
+      "metal": "egg_metal",
+      "star": "egg_star"
+    },
+    "buildings": {
+      "hatchery": "building_hatchery",
+      "food_farm": "building_food_farm",
+      "breeding_corral": "building_breeding_corral",
+      "breeding_den": "building_breeding_den",
+      "incubator_hatchery": "building_incubator_hatchery"
+    },
+    "farmStages": [
+      "farm_planted_sprouts",
+      "farm_growing_crops",
+      "farm_ready_to_harvest"
+    ],
+    "indicators": [
+      "indicator_gold_coin_bubble",
+      "indicator_food_harvest_bubble",
+      "indicator_hatching_ready_badge",
+      "indicator_tile_selection_frame"
+    ]
+  },
+  "ui": {
+    "icons": [
+      "icon_gold_coin",
+      "icon_food_berries",
+      "icon_gem",
+      "icon_xp_star",
+      "icon_breed",
+      "icon_hatch",
+      "icon_battle",
+      "icon_dragon_book",
+      "icon_achievements_trophy",
+      "icon_settings_gear",
+      "icon_audio_speaker",
+      "icon_level_up_arrow"
+    ],
+    "badges": [
+      "badge_fire",
+      "badge_water",
+      "badge_plant",
+      "badge_lightning",
+      "badge_earth",
+      "badge_ice",
+      "badge_air",
+      "badge_light",
+      "badge_metal",
+      "badge_star"
+    ]
+  }
+}

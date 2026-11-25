@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "building_hatchery.png",
+      "idiom": "universal",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "author": "dragon-island-slicer",
+    "version": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "battle_arena_background.png",
+      "idiom": "universal",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "author": "dragon-island-slicer",
+    "version": 1
+  }
+}

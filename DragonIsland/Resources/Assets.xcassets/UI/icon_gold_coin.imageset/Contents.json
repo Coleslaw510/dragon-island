@@ -1,0 +1,13 @@
+{
+  "images": [
+    {
+      "filename": "icon_gold_coin.png",
+      "idiom": "universal",
+      "scale": "1x"
+    }
+  ],
+  "info": {
+    "author": "dragon-island-slicer",
+    "version": 1
+  }
+}

@@ -1,0 +1,439 @@
+{
+  "schemaVersion": 1,
+  "elementOrder": [
+    "fire",
+    "water",
+    "earth",
+    "air",
+    "lightning",
+    "plant",
+    "ice",
+    "light",
+    "metal",
+    "star"
+  ],
+  "elements": [
+    {
+      "id": "fire",
+      "displayName": "Fire",
+      "colorHex": "#F26B3A",
+      "badgeTexture": "badge_fire",
+      "habitatTexture": "habitat_fire",
+      "habitatName": "Ember Hollow",
+      "habitatCapacity": 4,
+      "habitatCost": 350
+    },
+    {
+      "id": "water",
+      "displayName": "Water",
+      "colorHex": "#3FA9F5",
+      "badgeTexture": "badge_water",
+      "habitatTexture": "habitat_water",
+      "habitatName": "Tide Pools",
+      "habitatCapacity": 4,
+      "habitatCost": 350
+    },
+    {
+      "id": "earth",
+      "displayName": "Earth",
+      "colorHex": "#A9754B",
+      "badgeTexture": "badge_earth",
+      "habitatTexture": "habitat_earth",
+      "habitatName": "Stone Terrace",
+      "habitatCapacity": 4,
+      "habitatCost": 400
+    },
+    {
+      "id": "air",
+      "displayName": "Air",
+      "colorHex": "#BFD8E8",
+      "badgeTexture": "badge_air",
+      "habitatTexture": "habitat_air",
+      "habitatName": "Sky Perch",
+      "habitatCapacity": 4,
+      "habitatCost": 400
+    },
+    {
+      "id": "lightning",
+      "displayName": "Lightning",
+      "colorHex": "#F2C230",
+      "badgeTexture": "badge_lightning",
+      "habitatTexture": "habitat_lightning",
+      "habitatName": "Storm Ridge",
+      "habitatCapacity": 4,
+      "habitatCost": 450
+    },
+    {
+      "id": "plant",
+      "displayName": "Plant",
+      "colorHex": "#59B84C",
+      "badgeTexture": "badge_plant",
+      "habitatTexture": "habitat_plant",
+      "habitatName": "Verdant Grove",
+      "habitatCapacity": 4,
+      "habitatCost": 450
+    },
+    {
+      "id": "ice",
+      "displayName": "Ice",
+      "colorHex": "#8FD8E8",
+      "badgeTexture": "badge_ice",
+      "habitatTexture": "habitat_ice",
+      "habitatName": "Frost Hollow",
+      "habitatCapacity": 4,
+      "habitatCost": 500
+    },
+    {
+      "id": "light",
+      "displayName": "Light",
+      "colorHex": "#F5E27A",
+      "badgeTexture": "badge_light",
+      "habitatTexture": "habitat_light",
+      "habitatName": "Sunlit Court",
+      "habitatCapacity": 4,
+      "habitatCost": 550
+    },
+    {
+      "id": "metal",
+      "displayName": "Metal",
+      "colorHex": "#9AA6B2",
+      "badgeTexture": "badge_metal",
+      "habitatTexture": "habitat_metal",
+      "habitatName": "Iron Yard",
+      "habitatCapacity": 4,
+      "habitatCost": 550
+    },
+    {
+      "id": "star",
+      "displayName": "Star",
+      "colorHex": "#B48CE8",
+      "badgeTexture": "badge_star",
+      "habitatTexture": "habitat_star",
+      "habitatName": "Starfall Glade",
+      "habitatCapacity": 4,
+      "habitatCost": 600
+    }
+  ],
+  "dragons": [
+    {
+      "id": "blaze",
+      "displayName": "Blaze",
+      "element": "fire",
+      "rarity": "starter",
+      "actionName": "breathing_fire",
+      "spritePrefix": "dragon_blaze",
+      "baseHealth": 100,
+      "baseAttack": 12,
+      "baseDefense": 9,
+      "baseSpeed": 10
+    },
+    {
+      "id": "tide",
+      "displayName": "Tide",
+      "element": "water",
+      "rarity": "starter",
+      "actionName": "shooting_water",
+      "spritePrefix": "dragon_tide",
+      "baseHealth": 105,
+      "baseAttack": 10,
+      "baseDefense": 11,
+      "baseSpeed": 9
+    },
+    {
+      "id": "pebble",
+      "displayName": "Pebble",
+      "element": "earth",
+      "rarity": "starter",
+      "actionName": "rock_slam",
+      "spritePrefix": "dragon_pebble",
+      "baseHealth": 120,
+      "baseAttack": 11,
+      "baseDefense": 14,
+      "baseSpeed": 6
+    },
+    {
+      "id": "breeze",
+      "displayName": "Breeze",
+      "element": "air",
+      "rarity": "starter",
+      "actionName": "wind_gust",
+      "spritePrefix": "dragon_breeze",
+      "baseHealth": 95,
+      "baseAttack": 10,
+      "baseDefense": 8,
+      "baseSpeed": 14
+    },
+    {
+      "id": "spark",
+      "displayName": "Spark",
+      "element": "lightning",
+      "rarity": "starter",
+      "actionName": "lightning_bolt",
+      "spritePrefix": "dragon_spark",
+      "baseHealth": 98,
+      "baseAttack": 13,
+      "baseDefense": 8,
+      "baseSpeed": 12
+    },
+    {
+      "id": "fern",
+      "displayName": "Fern",
+      "element": "plant",
+      "rarity": "starter",
+      "actionName": "leaf_vine_blast",
+      "spritePrefix": "dragon_fern",
+      "baseHealth": 110,
+      "baseAttack": 10,
+      "baseDefense": 12,
+      "baseSpeed": 8
+    },
+    {
+      "id": "frost",
+      "displayName": "Frost",
+      "element": "ice",
+      "rarity": "starter",
+      "actionName": "ice_breath",
+      "spritePrefix": "dragon_frost",
+      "baseHealth": 108,
+      "baseAttack": 12,
+      "baseDefense": 11,
+      "baseSpeed": 8
+    },
+    {
+      "id": "gleam",
+      "displayName": "Gleam",
+      "element": "light",
+      "rarity": "starter",
+      "actionName": "light_beam",
+      "spritePrefix": "dragon_gleam",
+      "baseHealth": 100,
+      "baseAttack": 13,
+      "baseDefense": 10,
+      "baseSpeed": 10
+    },
+    {
+      "id": "rivet",
+      "displayName": "Rivet",
+      "element": "metal",
+      "rarity": "starter",
+      "actionName": "metal_blast",
+      "spritePrefix": "dragon_rivet",
+      "baseHealth": 115,
+      "baseAttack": 12,
+      "baseDefense": 15,
+      "baseSpeed": 7
+    },
+    {
+      "id": "twinkle",
+      "displayName": "Twinkle",
+      "element": "star",
+      "rarity": "starter",
+      "actionName": "star_blast",
+      "spritePrefix": "dragon_twinkle",
+      "baseHealth": 96,
+      "baseAttack": 14,
+      "baseDefense": 9,
+      "baseSpeed": 13
+    }
+  ],
+  "habitats": [
+    {
+      "id": "habitat_fire",
+      "element": "fire",
+      "displayName": "Ember Hollow",
+      "texture": "habitat_fire",
+      "capacity": 4,
+      "buildCost": 350,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_water",
+      "element": "water",
+      "displayName": "Tide Pools",
+      "texture": "habitat_water",
+      "capacity": 4,
+      "buildCost": 350,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_earth",
+      "element": "earth",
+      "displayName": "Stone Terrace",
+      "texture": "habitat_earth",
+      "capacity": 4,
+      "buildCost": 400,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_air",
+      "element": "air",
+      "displayName": "Sky Perch",
+      "texture": "habitat_air",
+      "capacity": 4,
+      "buildCost": 400,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_lightning",
+      "element": "lightning",
+      "displayName": "Storm Ridge",
+      "texture": "habitat_lightning",
+      "capacity": 4,
+      "buildCost": 450,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_plant",
+      "element": "plant",
+      "displayName": "Verdant Grove",
+      "texture": "habitat_plant",
+      "capacity": 4,
+      "buildCost": 450,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_ice",
+      "element": "ice",
+      "displayName": "Frost Hollow",
+      "texture": "habitat_ice",
+      "capacity": 4,
+      "buildCost": 500,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_light",
+      "element": "light",
+      "displayName": "Sunlit Court",
+      "texture": "habitat_light",
+      "capacity": 4,
+      "buildCost": 550,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_metal",
+      "element": "metal",
+      "displayName": "Iron Yard",
+      "texture": "habitat_metal",
+      "capacity": 4,
+      "buildCost": 550,
+      "unlockLevel": 1
+    },
+    {
+      "id": "habitat_star",
+      "element": "star",
+      "displayName": "Starfall Glade",
+      "texture": "habitat_star",
+      "capacity": 4,
+      "buildCost": 600,
+      "unlockLevel": 1
+    }
+  ],
+  "buildings": [
+    {
+      "id": "hatchery",
+      "displayName": "Hatchery",
+      "texture": "building_hatchery",
+      "cost": 500,
+      "maxLevel": 3,
+      "footprint": [
+        1,
+        1
+      ],
+      "description": "Hatches eggs into new dragons."
+    },
+    {
+      "id": "food_farm",
+      "displayName": "Food Farm",
+      "texture": "building_food_farm",
+      "cost": 250,
+      "maxLevel": 3,
+      "footprint": [
+        1,
+        1
+      ],
+      "description": "Grows food for hungry dragons."
+    },
+    {
+      "id": "breeding_corral",
+      "displayName": "Breeding Corral",
+      "texture": "building_breeding_corral",
+      "cost": 750,
+      "maxLevel": 3,
+      "footprint": [
+        1,
+        1
+      ],
+      "description": "Pairs two dragons for breeding."
+    },
+    {
+      "id": "breeding_den",
+      "displayName": "Breeding Den",
+      "texture": "building_breeding_den",
+      "cost": 900,
+      "maxLevel": 3,
+      "footprint": [
+        1,
+        1
+      ],
+      "description": "A cozy den for breeding pairs."
+    },
+    {
+      "id": "incubator_hatchery",
+      "displayName": "Incubator Hatchery",
+      "texture": "building_incubator_hatchery",
+      "cost": 1100,
+      "maxLevel": 3,
+      "footprint": [
+        1,
+        1
+      ],
+      "description": "Speeds up egg incubation."
+    }
+  ],
+  "starterLayout": [
+    {
+      "kind": "habitat",
+      "definitionID": "habitat_fire",
+      "tileX": 3,
+      "tileY": 2
+    },
+    {
+      "kind": "habitat",
+      "definitionID": "habitat_plant",
+      "tileX": 1,
+      "tileY": 3
+    },
+    {
+      "kind": "building",
+      "definitionID": "food_farm",
+      "tileX": 5,
+      "tileY": 4
+    },
+    {
+      "kind": "building",
+      "definitionID": "hatchery",
+      "tileX": 2,
+      "tileY": 5
+    },
+    {
+      "kind": "building",
+      "definitionID": "breeding_corral",
+      "tileX": 6,
+      "tileY": 2
+    }
+  ],
+  "starterDragons": [
+    {
+      "definitionID": "blaze",
+      "level": 2,
+      "tileX": 3,
+      "tileY": 2
+    },
+    {
+      "definitionID": "fern",
+      "level": 1,
+      "tileX": 1,
+      "tileY": 3
+    }
+  ]
+}
