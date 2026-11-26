@@ -83,12 +83,14 @@ extension GameStateStore {
         evaluateAchievements()
     }
 
+    /// Index of the upcoming encounter.  Read it before building the enemy
+    /// team and only commit with `recordBattleStarted()` once that succeeds.
+    var nextBattleIndex: Int { state.battlesFought ?? 0 }
+
     /// Advances the JSON encounter table so rematches see a new opposing team.
-    func recordBattleStarted() -> Int {
-        let index = state.battlesFought ?? 0
-        state.battlesFought = index + 1
+    func recordBattleStarted() {
+        state.battlesFought = nextBattleIndex + 1
         save()
-        return index
     }
 
     // MARK: - Evaluation

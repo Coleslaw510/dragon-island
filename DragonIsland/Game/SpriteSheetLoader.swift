@@ -25,25 +25,32 @@ final class SpriteSheetLoader {
     /// their `spritePrefix`.
     func frameNames(forDragon id: String, spritePrefix: String? = nil,
                     state: DragonAnimationState) -> [String] {
-        if let frames = manifest?.dragons[id]?.animations[state.rawValue]?.frames {
-            return frames
-        }
-        guard let spritePrefix, let key = Self.manifestKey(from: spritePrefix) else { return [] }
-        return manifest?.dragons[key]?.animations[state.rawValue]?.frames ?? []
+        dragonSprite(id: id, spritePrefix: spritePrefix)?.animations[state.rawValue]?.frames ?? []
     }
 
     private static func manifestKey(from spritePrefix: String) -> String {
         spritePrefix.hasPrefix("dragon_") ? String(spritePrefix.dropFirst(7)) : spritePrefix
     }
 
-    /// Row order matches the sheet: 0 idle, 1 walk, 2 fly, 3 action.
-    func frames(forDragon id: String, row: Int) -> [SKTexture] {
-        guard DragonAnimationState.allCases.indices.contains(row) else { return [] }
-        return frames(forDragon: id, state: DragonAnimationState.allCases[row])
+    /// Prefers the dragon's own sheet and falls back to the borrowed one.
+    private func dragonSprite(id: String, spritePrefix: String?) -> SpriteManifest.DragonSprite? {
+        if let sprite = manifest?.dragons[id] { return sprite }
+        guard let spritePrefix else { return nil }
+        let key = Self.manifestKey(from: spritePrefix)
+        return manifest?.dragons[key]
     }
 
-    func action(forDragon id: String, state: DragonAnimationState) -> SKAction? {
-        guard let animation = manifest?.dragons[id]?.animations[state.rawValue] else { return nil }
+    /// Row order matches the sheet: 0 idle, 1 walk, 2 fly, 3 action.
+    func frames(forDragon id: String, spritePrefix: String? = nil, row: Int) -> [SKTexture] {
+        guard DragonAnimationState.allCases.indices.contains(row) else { return [] }
+        return frames(forDragon: id, spritePrefix: spritePrefix,
+                      state: DragonAnimationState.allCases[row])
+    }
+
+    func action(forDragon id: String, spritePrefix: String? = nil,
+                state: DragonAnimationState) -> SKAction? {
+        guard let sprite = dragonSprite(id: id, spritePrefix: spritePrefix),
+              let animation = sprite.animations[state.rawValue] else { return nil }
         let frames = textures(named: animation.frames)
         guard !frames.isEmpty else { return nil }
         let timePerFrame = max(0.03, 1.0 / max(animation.fps, 1.0))
@@ -51,8 +58,9 @@ final class SpriteSheetLoader {
         return animation.loop ? .repeatForever(animate) : animate
     }
 
-    func frameSize(forDragon id: String) -> CGSize {
-        guard let size = manifest?.dragons[id]?.frameSize else { return CGSize(width: 180, height: 140) }
+    func frameSize(forDragon id: String, spritePrefix: String? = nil) -> CGSize {
+        guard let size = dragonSprite(id: id, spritePrefix: spritePrefix)?.frameSize
+        else { return CGSize(width: 180, height: 140) }
         return CGSize(width: CGFloat(size.width), height: CGFloat(size.height))
     }
 
