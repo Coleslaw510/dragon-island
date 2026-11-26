@@ -44,12 +44,7 @@ struct IslandHostView: View {
         .background(Color.black)
         .statusBarHidden(true)
         .persistentSystemOverlays(.hidden)
-        .task {
-            while !Task.isCancelled {
-                store.tick()
-                try? await Task.sleep(for: .seconds(1))
-            }
-        }
+        .task { await tickLoop() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 store.beginSession()
@@ -58,31 +53,14 @@ struct IslandHostView: View {
                 store.endSession()
             }
         }
-        .onChange(of: store.state.placedBuildings.count) { _, _ in scene.refreshPlacements() }
-        .onChange(of: store.state.ownedDragons) { _, _ in scene.refreshPlacements() }
-        .onChange(of: store.state.eggs) { _, _ in scene.refreshPlacements() }
-        .onChange(of: store.state.breedingSessions) { _, _ in scene.refreshPlacements() }
-        .onChange(of: store.state.unlockedGridColumns) { _, _ in scene.updateGrid(for: store.state) }
-        .onChange(of: store.state.unlockedGridRows) { _, _ in scene.updateGrid(for: store.state) }
-        .onChange(of: store.worldRevision) { _, _ in
-            interaction.dismissSelection()
-            interaction.cancelMove()
-            scene.updateGrid(for: store.state)
-            scene.refreshPlacements()
-            scene.refreshInteractionVisuals()
-        }
-        .onChange(of: store.pendingPlacement) { _, _ in scene.refreshInteractionVisuals() }
-        .onChange(of: store.tutorialTargetID) { _, _ in scene.refreshInteractionVisuals() }
-        .onChange(of: interaction.selectedPlacementID) { _, _ in scene.refreshInteractionVisuals() }
-        .onChange(of: interaction.movingPlacementID) { _, _ in scene.refreshInteractionVisuals() }
-        .onChange(of: interaction.statusMessage) { _, message in
-            if let message { showToast(message) }
-        }
-        .onChange(of: interaction.hatchedDragon) { _, dragon in
-            guard let dragon else { return }
-            placementDragon = dragon
-            interaction.clearHatchedDragon()
-        }
+        .modifier(IslandStateSync(store: store, scene: scene, interaction: interaction))
+        .modifier(IslandInteractionSync(
+            store: store,
+            interaction: interaction,
+            scene: scene,
+            placementDragon: $placementDragon,
+            showToast: showToast
+        ))
         .onChange(of: store.shopOpenRequest) { _, _ in
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { showsShop = true }
         }
@@ -151,6 +129,14 @@ struct IslandHostView: View {
             .padding(.bottom, 92)
             .allowsHitTesting(false)
             .transition(.opacity)
+    }
+
+    @MainActor
+    private func tickLoop() async {
+        while !Task.isCancelled {
+            store.tick()
+            try? await Task.sleep(for: .seconds(1))
+        }
     }
 
     private func showToast(_ text: String) {
