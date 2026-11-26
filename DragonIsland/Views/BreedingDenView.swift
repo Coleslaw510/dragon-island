@@ -116,7 +116,8 @@ struct BreedingDenView: View {
                         dragon: dragon,
                         element: element(for: dragon),
                         badgeTexture: badge(for: element(for: dragon)),
-                        selected: parentIDs.contains(dragon.id)
+                        selected: parentIDs.contains(dragon.id),
+                        busy: store.isBreedingParentBusy(dragon.id)
                     ) {
                         toggle(dragon.id)
                     }
@@ -174,12 +175,17 @@ struct BreedingDenView: View {
     private var canStart: Bool {
         guard let building, parentIDs.count == 2 else { return false }
         return store.availableBreedingSlots(in: building) > 0
+            && parentIDs.allSatisfy { !store.isBreedingParentBusy($0) }
             && store.state.resources.gold >= store.rules.breeding.goldCost
             && store.state.resources.food >= store.rules.breeding.foodCost
     }
 
     private func toggle(_ id: UUID) {
         notice = nil
+        guard !store.isBreedingParentBusy(id) else {
+            notice = BreedingFailure.dragonBusy.message
+            return
+        }
         if let index = parentIDs.firstIndex(of: id) {
             parentIDs.remove(at: index)
         } else if parentIDs.count < 2 {

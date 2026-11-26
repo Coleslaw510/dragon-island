@@ -1,10 +1,11 @@
 import SwiftUI
 
 /// Minimal resource bar.  Breeding, hatching and the dragon book open calm
-/// sheets; Battle stays disabled until a later milestone.
+/// sheets; Battle opens the full-screen arena.
 struct TopHudView: View {
     @ObservedObject var store: GameStateStore
     @State private var sheet: HudSheet?
+    @State private var showsBattle = false
 
     var body: some View {
         HStack(spacing: 8) {
@@ -41,12 +42,19 @@ struct TopHudView: View {
                 DragonBookView(store: store)
             }
         }
+        .fullScreenCover(isPresented: $showsBattle) {
+            BattleView(store: store)
+        }
     }
 
     private func actionButton(_ action: HudAction) -> some View {
-        let enabled = action.isEnabled
+        let enabled = action.isEnabled(hasDragons: !store.state.ownedDragons.isEmpty)
         return Button {
-            sheet = action.sheet
+            if action == .battle {
+                showsBattle = true
+            } else {
+                sheet = action.sheet
+            }
         } label: {
             Image(action.icon)
                 .resizable()
@@ -101,7 +109,7 @@ private enum HudSheet: String, Identifiable {
     var id: String { rawValue }
 }
 
-private enum HudAction: String, CaseIterable, Identifiable {
+private enum HudAction: String, CaseIterable, Identifiable, Equatable {
     case breed, hatch, battle, codex
 
     var id: String { rawValue }
@@ -133,12 +141,10 @@ private enum HudAction: String, CaseIterable, Identifiable {
         }
     }
 
-    var isEnabled: Bool {
-        if case .battle = self { return false }
+    func isEnabled(hasDragons: Bool) -> Bool {
+        if case .battle = self { return hasDragons }
         return true
     }
 
-    var accessibility: String {
-        isEnabled ? title : "\(title). Coming in a later milestone."
-    }
+    var accessibility: String { title }
 }

@@ -24,6 +24,15 @@ extension GameStateStore {
         breedingSessions.filter { $0.buildingID == buildingID }
     }
 
+    /// Dragons locked into an unfinished pair cannot start a second one.
+    var busyBreedingParentIDs: Set<UUID> {
+        Set(breedingSessions.flatMap { [$0.parentAID, $0.parentBID] })
+    }
+
+    func isBreedingParentBusy(_ id: UUID) -> Bool {
+        busyBreedingParentIDs.contains(id)
+    }
+
     func availableBreedingSlots(in building: PlacedBuilding) -> Int {
         guard let rule = rules.breedingBuilding(building.definitionID) else { return 0 }
         return max(0, rule.slots - breedingSessions(in: building.id).count)
@@ -51,6 +60,9 @@ extension GameStateStore {
         }
         guard availableBreedingSlots(in: building) > 0 else { return .failure(.noSlot) }
         guard parentA != parentB else { return .failure(.sameDragon) }
+        guard !isBreedingParentBusy(parentA), !isBreedingParentBusy(parentB) else {
+            return .failure(.dragonBusy)
+        }
         guard let dragonA = state.ownedDragons.first(where: { $0.id == parentA }),
               let dragonB = state.ownedDragons.first(where: { $0.id == parentB }),
               let definitionA = catalog.dragon(dragonA.definitionID),

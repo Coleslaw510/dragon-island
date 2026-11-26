@@ -61,6 +61,11 @@ xcodebuild -project DragonIsland.xcodeproj -scheme DragonIsland \
   `badge_<element>`, `island_starter_<n>`.
 - `SpriteSheetLoader` reads `sprite_manifest.json`; if you add art, update the
   manifest and loader lookups together.
+- Battle maths is pure in `Game/BattleEngine.swift`; `Game/BattleSession.swift`
+  drives turns and payout. Every balance number (team size, element modifiers,
+  cooldowns, XP and gold/food) lives in `Resources/GameData/battle_rules.json`.
+- `TopHudView` opens `BattleView`; a win calls
+  `GameStateStore.applyBattleRewards` and saves through the store.
 
 ## CI
 

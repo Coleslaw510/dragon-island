@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "teamSize": 3,
+  "levelScaling": {
+    "healthPerLevel": 0.08,
+    "attackPerLevel": 0.06,
+    "defensePerLevel": 0.05,
+    "speedPerLevel": 0.03
+  },
+  "damage": {
+    "defenseRatio": 0.4,
+    "minimumDamage": 1,
+    "criticalMultiplier": 1.5,
+    "weakMultiplier": 0.7
+  },
+  "elements": {
+    "strongAgainst": {
+      "fire": ["plant", "ice"],
+      "water": ["fire", "earth"],
+      "earth": ["lightning", "metal"],
+      "air": ["earth", "plant"],
+      "lightning": ["water", "metal"],
+      "plant": ["water", "earth"],
+      "ice": ["air", "plant"],
+      "light": ["ice", "star"],
+      "metal": ["ice", "light"],
+      "star": ["light", "metal"]
+    }
+  },
+  "moves": [
+    {
+      "id": "strike",
+      "displayName": "Strike",
+      "cooldownTurns": 0,
+      "power": 2.0
+    },
+    {
+      "id": "surge",
+      "displayName": "Elemental Surge",
+      "cooldownTurns": 3,
+      "power": 3.4
+    }
+  ],
+  "opponent": {
+    "matchPlayerTeamSize": true,
+    "levelOffset": 0,
+    "minLevel": 1
+  },
+  "rewards": {
+    "gold": 140,
+    "food": 70,
+    "xp": 45,
+    "dragonXP": 50
+  }
+}

@@ -16,8 +16,12 @@ final class SpriteSheetLoader {
     // MARK: - Dragons
 
     func frames(forDragon id: String, state: DragonAnimationState) -> [SKTexture] {
-        guard let animation = manifest?.dragons[id]?.animations[state.rawValue] else { return [] }
-        return textures(named: animation.frames)
+        textures(named: frameNames(forDragon: id, state: state))
+    }
+
+    /// Asset names for SwiftUI views that cycle frames with `TimelineView`.
+    func frameNames(forDragon id: String, state: DragonAnimationState) -> [String] {
+        manifest?.dragons[id]?.animations[state.rawValue]?.frames ?? []
     }
 
     /// Row order matches the sheet: 0 idle, 1 walk, 2 fly, 3 action.

@@ -1,11 +1,13 @@
 import SwiftUI
 
-/// One selectable parent dragon in the breeding sheet.
+/// One selectable parent dragon in the breeding sheet.  Dragons already in a
+/// breeding pair are greyed out and cannot be picked.
 struct BreedingParentCard: View {
     let dragon: OwnedDragon
     let element: ElementType
     let badgeTexture: String
     let selected: Bool
+    let busy: Bool
     let action: () -> Void
 
     var body: some View {
@@ -18,7 +20,8 @@ struct BreedingParentCard: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text(dragon.nickname)
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    Text("\(element.rawValue.capitalized) · Lv \(dragon.level)")
+                    Text(busy ? "In a breeding pair"
+                              : "\(element.rawValue.capitalized) · Lv \(dragon.level)")
                         .font(.caption2)
                         .foregroundStyle(.white.opacity(0.6))
                 }
@@ -26,15 +29,18 @@ struct BreedingParentCard: View {
             }
             .foregroundStyle(.white)
             .padding(9)
-            .background(.white.opacity(selected ? 0.20 : 0.08),
+            .background(.white.opacity(selected && !busy ? 0.20 : 0.08),
                         in: RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(selected ? Color.orange : Color.white.opacity(0.10),
-                                  lineWidth: selected ? 2 : 1)
+                    .strokeBorder(selected && !busy ? Color.orange : Color.white.opacity(0.10),
+                                  lineWidth: selected && !busy ? 2 : 1)
             )
+            .grayscale(busy ? 1 : 0)
+            .opacity(busy ? 0.4 : 1)
         }
         .buttonStyle(.plain)
+        .disabled(busy)
     }
 }
 

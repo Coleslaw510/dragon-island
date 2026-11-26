@@ -131,6 +131,7 @@ enum BreedingFailure: String, Error, Sendable {
     case noSlot
     case noParents
     case sameDragon
+    case dragonBusy
     case unknownDragon
     case insufficientGold
     case insufficientFood
@@ -142,6 +143,7 @@ enum BreedingFailure: String, Error, Sendable {
         case .noSlot: return "That breeding building is already busy."
         case .noParents: return "Pick two parent dragons."
         case .sameDragon: return "Pick two different dragons."
+        case .dragonBusy: return "That dragon is already in a breeding pair."
         case .unknownDragon: return "That dragon is not on the island."
         case .insufficientGold: return "Not enough gold."
         case .insufficientFood: return "Not enough food."

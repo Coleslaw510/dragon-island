@@ -7,6 +7,7 @@ struct DragonIslandApp: App {
     init() {
         let catalog: GameCatalog
         let rules: BreedingRules
+        let battleRules: BattleRules
         do {
             catalog = try CatalogLoader.loadCatalog()
         } catch {
@@ -19,7 +20,14 @@ struct DragonIslandApp: App {
             print("[DragonIsland] breeding rules load failed: \(error)")
             rules = .empty
         }
-        _store = StateObject(wrappedValue: GameStateStore(catalog: catalog, rules: rules))
+        do {
+            battleRules = try CatalogLoader.loadBattleRules()
+        } catch {
+            print("[DragonIsland] battle rules load failed: \(error)")
+            battleRules = .empty
+        }
+        _store = StateObject(wrappedValue: GameStateStore(catalog: catalog, rules: rules,
+                                                          battleRules: battleRules))
     }
 
     var body: some Scene {

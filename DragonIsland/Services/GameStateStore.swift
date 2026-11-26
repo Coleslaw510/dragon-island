@@ -8,14 +8,17 @@ final class GameStateStore: ObservableObject {
 
     let catalog: GameCatalog
     let rules: BreedingRules
+    let battleRules: BattleRules
     private let fileURL: URL
     private let fileManager: FileManager
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
-    init(catalog: GameCatalog, rules: BreedingRules = .empty, fileManager: FileManager = .default) {
+    init(catalog: GameCatalog, rules: BreedingRules = .empty,
+         battleRules: BattleRules = .empty, fileManager: FileManager = .default) {
         self.catalog = catalog
         self.rules = rules
+        self.battleRules = battleRules
         self.fileManager = fileManager
 
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
