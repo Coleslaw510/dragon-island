@@ -1,15 +1,15 @@
 {
   "elements": {
-    "fire":      { "displayName": "Fire",      "colorHex": "#F26B3A", "habitatName": "Ember Hollow",  "habitatCapacity": 4, "habitatCost": 350 },
-    "water":     { "displayName": "Water",     "colorHex": "#3FA9F5", "habitatName": "Tide Pools",    "habitatCapacity": 4, "habitatCost": 350 },
-    "earth":     { "displayName": "Earth",     "colorHex": "#A9754B", "habitatName": "Stone Terrace", "habitatCapacity": 4, "habitatCost": 400 },
-    "air":       { "displayName": "Air",       "colorHex": "#BFD8E8", "habitatName": "Sky Perch",     "habitatCapacity": 4, "habitatCost": 400 },
-    "lightning": { "displayName": "Lightning", "colorHex": "#F2C230", "habitatName": "Storm Ridge",   "habitatCapacity": 4, "habitatCost": 450 },
-    "plant":     { "displayName": "Plant",     "colorHex": "#59B84C", "habitatName": "Verdant Grove", "habitatCapacity": 4, "habitatCost": 450 },
-    "ice":       { "displayName": "Ice",       "colorHex": "#8FD8E8", "habitatName": "Frost Hollow",  "habitatCapacity": 4, "habitatCost": 500 },
-    "light":     { "displayName": "Light",     "colorHex": "#F5E27A", "habitatName": "Sunlit Court",  "habitatCapacity": 4, "habitatCost": 550 },
-    "metal":     { "displayName": "Metal",     "colorHex": "#9AA6B2", "habitatName": "Iron Yard",     "habitatCapacity": 4, "habitatCost": 550 },
-    "star":      { "displayName": "Star",      "colorHex": "#B48CE8", "habitatName": "Starfall Glade","habitatCapacity": 4, "habitatCost": 600 }
+    "fire":      { "displayName": "Fire",      "colorHex": "#F26B3A", "habitatName": "Ember Hollow",  "habitatCapacity": 4, "habitatCost": 350, "goldPerHour": 720, "goldCap": 240 },
+    "water":     { "displayName": "Water",     "colorHex": "#3FA9F5", "habitatName": "Tide Pools",    "habitatCapacity": 4, "habitatCost": 350, "goldPerHour": 720, "goldCap": 240 },
+    "earth":     { "displayName": "Earth",     "colorHex": "#A9754B", "habitatName": "Stone Terrace", "habitatCapacity": 4, "habitatCost": 400, "goldPerHour": 760, "goldCap": 260 },
+    "air":       { "displayName": "Air",       "colorHex": "#BFD8E8", "habitatName": "Sky Perch",     "habitatCapacity": 4, "habitatCost": 400, "goldPerHour": 760, "goldCap": 260 },
+    "lightning": { "displayName": "Lightning", "colorHex": "#F2C230", "habitatName": "Storm Ridge",   "habitatCapacity": 4, "habitatCost": 450, "goldPerHour": 800, "goldCap": 280 },
+    "plant":     { "displayName": "Plant",     "colorHex": "#59B84C", "habitatName": "Verdant Grove", "habitatCapacity": 4, "habitatCost": 450, "goldPerHour": 800, "goldCap": 280 },
+    "ice":       { "displayName": "Ice",       "colorHex": "#8FD8E8", "habitatName": "Frost Hollow",  "habitatCapacity": 4, "habitatCost": 500, "goldPerHour": 840, "goldCap": 300 },
+    "light":     { "displayName": "Light",     "colorHex": "#F5E27A", "habitatName": "Sunlit Court",  "habitatCapacity": 4, "habitatCost": 550, "goldPerHour": 840, "goldCap": 300 },
+    "metal":     { "displayName": "Metal",     "colorHex": "#9AA6B2", "habitatName": "Iron Yard",     "habitatCapacity": 4, "habitatCost": 550, "goldPerHour": 880, "goldCap": 320 },
+    "star":      { "displayName": "Star",      "colorHex": "#B48CE8", "habitatName": "Starfall Glade","habitatCapacity": 4, "habitatCost": 600, "goldPerHour": 880, "goldCap": 320 }
   },
   "dragons": [
     { "id": "blaze",   "displayName": "Blaze",   "element": "fire",      "actionName": "breathing_fire",   "baseHealth": 100, "baseAttack": 12, "baseDefense": 9,  "baseSpeed": 10 },
@@ -25,7 +25,7 @@
   ],
   "buildings": [
     { "id": "hatchery",            "displayName": "Hatchery",            "texture": "building_hatchery",            "cost": 500,  "maxLevel": 3, "footprint": [1, 1], "description": "Hatches eggs into new dragons." },
-    { "id": "food_farm",           "displayName": "Food Farm",           "texture": "building_food_farm",           "cost": 250,  "maxLevel": 3, "footprint": [1, 1], "description": "Grows food for hungry dragons." },
+    { "id": "food_farm",           "displayName": "Food Farm",           "texture": "building_food_farm",           "cost": 250,  "maxLevel": 3, "footprint": [1, 1], "description": "Grows food for hungry dragons.", "growSeconds": 300, "harvestFood": 100, "plantCost": 20, "sproutFraction": 0.4 },
     { "id": "breeding_corral",     "displayName": "Breeding Corral",     "texture": "building_breeding_corral",     "cost": 750,  "maxLevel": 3, "footprint": [1, 1], "description": "Pairs two dragons for breeding." },
     { "id": "breeding_den",        "displayName": "Breeding Den",        "texture": "building_breeding_den",        "cost": 900,  "maxLevel": 3, "footprint": [1, 1], "description": "A cozy den for breeding pairs." },
     { "id": "incubator_hatchery",  "displayName": "Incubator Hatchery",  "texture": "building_incubator_hatchery",  "cost": 1100, "maxLevel": 3, "footprint": [1, 1], "description": "Speeds up egg incubation." }
@@ -33,7 +33,7 @@
   "starterLayout": [
     { "kind": "habitat",  "definitionID": "habitat_fire",    "tileX": 3, "tileY": 2 },
     { "kind": "habitat",  "definitionID": "habitat_plant",   "tileX": 1, "tileY": 3 },
-    { "kind": "building", "definitionID": "food_farm",       "tileX": 5, "tileY": 4 },
+    { "kind": "farm",     "definitionID": "food_farm",       "tileX": 5, "tileY": 4 },
     { "kind": "building", "definitionID": "hatchery",        "tileX": 2, "tileY": 5 },
     { "kind": "building", "definitionID": "breeding_corral", "tileX": 6, "tileY": 2 }
   ],

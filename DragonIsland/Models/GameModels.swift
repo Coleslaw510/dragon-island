@@ -55,6 +55,8 @@ struct PlacedBuilding: Codable, Identifiable, Hashable, Sendable {
     var level: Int
     var element: ElementType?
     var placedAt: Date
+    var lastCollectedAt: Date? = nil
+    var plantedAt: Date? = nil
 
     var tile: TileCoordinate { TileCoordinate(x: tileX, y: tileY) }
 }

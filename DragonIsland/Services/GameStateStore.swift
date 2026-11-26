@@ -3,7 +3,7 @@ import Foundation
 
 struct OfflineReport: Equatable, Sendable {
     let secondsAway: TimeInterval
-    let foodEarned: Int
+    let goldEarned: Int
 }
 
 /// Owns the save file and publishes the single source of truth for the game.
@@ -37,22 +37,24 @@ final class GameStateStore: ObservableObject {
         decoder.dateDecodingStrategy = .iso8601
         self.decoder = decoder
 
-        self.state = Self.loadOrCreate(at: fileURL, catalog: catalog, decoder: decoder, fileManager: fileManager)
+        var loaded = Self.loadOrCreate(at: fileURL, catalog: catalog, decoder: decoder, fileManager: fileManager)
+        Self.normalizePlacements(&loaded, catalog: catalog)
+        self.state = loaded
+        IslandEconomy.reconcileAssignments(&state, catalog: catalog, now: .now)
         beginSession()
     }
 
     // MARK: - Session hooks
 
-    /// Offline progress hook: food accrues while the app is closed.  The value is
-    /// published for a future summary card; Milestone 1 shows no popup.
+    /// Offline progress hook: occupied habitats bank gold up to their cap while
+    /// the app is closed.  Farm growth needs no catch-up because it is derived
+    /// from `plantedAt` whenever the world is built.
     func beginSession(now: Date = .now) {
         let away = now.timeIntervalSince(state.lastSeenAt)
         if away > 90 {
-            let capped = min(away, 8 * 3600)
-            let food = min(600, Int(capped / 60) * 2)
-            if food > 0 {
-                state.resources.food += food
-                lastOfflineReport = OfflineReport(secondsAway: capped, foodEarned: food)
+            let gold = IslandEconomy.collectOfflineGold(&state, catalog: catalog, now: now)
+            if gold > 0 {
+                lastOfflineReport = OfflineReport(secondsAway: away, goldEarned: gold)
             }
         }
         state.lastSeenAt = now
@@ -91,6 +93,105 @@ final class GameStateStore: ObservableObject {
         try? fileManager.removeItem(at: backup)
         try? fileManager.moveItem(at: url, to: backup)
         return SaveStateFactory.makeStarter(catalog: catalog)
+    }
+
+    /// Older saves stored the starter farm as a plain building.  The kind now
+    /// drives farm timers, so promote anything whose definition is a farm.
+    private static func normalizePlacements(_ state: inout IslandSaveState, catalog: GameCatalog) {
+        for index in state.placedBuildings.indices
+        where state.placedBuildings[index].kind == .building
+            && catalog.building(state.placedBuildings[index].definitionID)?.isFarm == true {
+            state.placedBuildings[index].kind = .farm
+        }
+    }
+
+    // MARK: - Placement and economy
+
+    @discardableResult
+    func buildPlacement(kind: PlacementKind, definitionID: String, tile: TileCoordinate,
+                        now: Date = .now) -> Result<PlacedBuilding, PlacementFailure> {
+        guard IslandGrid().contains(tile) else { return .failure(.outOfBounds) }
+        guard IslandEconomy.placement(at: tile, state: state) == nil else { return .failure(.tileOccupied) }
+        guard IslandEconomy.definitionExists(kind: kind, definitionID: definitionID, catalog: catalog),
+              let cost = IslandEconomy.cost(kind: kind, definitionID: definitionID, catalog: catalog)
+        else { return .failure(.unknownDefinition) }
+        guard state.resources.gold >= cost else { return .failure(.insufficientGold) }
+
+        state.resources.gold -= cost
+        let placed = PlacedBuilding(
+            id: UUID(),
+            definitionID: definitionID,
+            kind: kind,
+            tileX: tile.x,
+            tileY: tile.y,
+            level: 1,
+            element: kind == .habitat ? catalog.habitat(definitionID)?.element : nil,
+            placedAt: now
+        )
+        state.placedBuildings.append(placed)
+        if kind == .habitat {
+            IslandEconomy.reconcileAssignments(&state, catalog: catalog, now: now)
+        }
+        save()
+        return .success(placed)
+    }
+
+    @discardableResult
+    func movePlacement(id: UUID, to tile: TileCoordinate) -> Result<PlacedBuilding, PlacementFailure> {
+        guard IslandGrid().contains(tile) else { return .failure(.outOfBounds) }
+        guard let index = state.placedBuildings.firstIndex(where: { $0.id == id }) else {
+            return .failure(.unknownDefinition)
+        }
+        guard state.placedBuildings[index].tile != tile else { return .success(state.placedBuildings[index]) }
+        guard IslandEconomy.placement(at: tile, state: state) == nil else { return .failure(.tileOccupied) }
+
+        state.placedBuildings[index].tileX = tile.x
+        state.placedBuildings[index].tileY = tile.y
+        save()
+        return .success(state.placedBuildings[index])
+    }
+
+    @discardableResult
+    func collectHabitat(id: UUID, now: Date = .now) -> Int {
+        guard let index = state.placedBuildings.firstIndex(where: { $0.id == id }),
+              let status = IslandEconomy.status(for: state.placedBuildings[index], state: state,
+                                                catalog: catalog, now: now),
+              status.isReady else { return 0 }
+        state.resources.gold += status.pendingGold
+        state.placedBuildings[index].lastCollectedAt = now
+        state.lastCollectionAt = now
+        save()
+        return status.pendingGold
+    }
+
+    @discardableResult
+    func plantFarm(id: UUID, now: Date = .now) -> Bool {
+        guard let index = state.placedBuildings.firstIndex(where: { $0.id == id }),
+              state.placedBuildings[index].kind == .farm,
+              state.placedBuildings[index].plantedAt == nil,
+              let definition = catalog.building(state.placedBuildings[index].definitionID),
+              definition.isFarm else { return false }
+        let cost = definition.plantCost ?? 0
+        guard state.resources.gold >= cost else { return false }
+
+        state.resources.gold -= cost
+        state.placedBuildings[index].plantedAt = now
+        save()
+        return true
+    }
+
+    @discardableResult
+    func harvestFarm(id: UUID, now: Date = .now) -> Int {
+        guard let index = state.placedBuildings.firstIndex(where: { $0.id == id }),
+              let definition = catalog.building(state.placedBuildings[index].definitionID),
+              let harvest = definition.harvestFood,
+              FarmGrowth.stage(for: state.placedBuildings[index], catalog: catalog, now: now) == .ready
+        else { return 0 }
+
+        state.resources.food += harvest
+        state.placedBuildings[index].plantedAt = nil
+        save()
+        return harvest
     }
 
     // MARK: - Resources

@@ -244,7 +244,9 @@
       "texture": "habitat_fire",
       "capacity": 4,
       "buildCost": 350,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 720,
+      "goldCap": 240
     },
     {
       "id": "habitat_water",
@@ -253,7 +255,9 @@
       "texture": "habitat_water",
       "capacity": 4,
       "buildCost": 350,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 720,
+      "goldCap": 240
     },
     {
       "id": "habitat_earth",
@@ -262,7 +266,9 @@
       "texture": "habitat_earth",
       "capacity": 4,
       "buildCost": 400,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 760,
+      "goldCap": 260
     },
     {
       "id": "habitat_air",
@@ -271,7 +277,9 @@
       "texture": "habitat_air",
       "capacity": 4,
       "buildCost": 400,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 760,
+      "goldCap": 260
     },
     {
       "id": "habitat_lightning",
@@ -280,7 +288,9 @@
       "texture": "habitat_lightning",
       "capacity": 4,
       "buildCost": 450,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 800,
+      "goldCap": 280
     },
     {
       "id": "habitat_plant",
@@ -289,7 +299,9 @@
       "texture": "habitat_plant",
       "capacity": 4,
       "buildCost": 450,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 800,
+      "goldCap": 280
     },
     {
       "id": "habitat_ice",
@@ -298,7 +310,9 @@
       "texture": "habitat_ice",
       "capacity": 4,
       "buildCost": 500,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 840,
+      "goldCap": 300
     },
     {
       "id": "habitat_light",
@@ -307,7 +321,9 @@
       "texture": "habitat_light",
       "capacity": 4,
       "buildCost": 550,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 840,
+      "goldCap": 300
     },
     {
       "id": "habitat_metal",
@@ -316,7 +332,9 @@
       "texture": "habitat_metal",
       "capacity": 4,
       "buildCost": 550,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 880,
+      "goldCap": 320
     },
     {
       "id": "habitat_star",
@@ -325,7 +343,9 @@
       "texture": "habitat_star",
       "capacity": 4,
       "buildCost": 600,
-      "unlockLevel": 1
+      "unlockLevel": 1,
+      "goldPerHour": 880,
+      "goldCap": 320
     }
   ],
   "buildings": [
@@ -351,7 +371,11 @@
         1,
         1
       ],
-      "description": "Grows food for hungry dragons."
+      "description": "Grows food for hungry dragons.",
+      "growSeconds": 300,
+      "harvestFood": 100,
+      "plantCost": 20,
+      "sproutFraction": 0.4
     },
     {
       "id": "breeding_corral",
@@ -404,7 +428,7 @@
       "tileY": 3
     },
     {
-      "kind": "building",
+      "kind": "farm",
       "definitionID": "food_farm",
       "tileX": 5,
       "tileY": 4

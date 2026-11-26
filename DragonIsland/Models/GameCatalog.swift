@@ -63,6 +63,8 @@ struct HabitatDefinition: Codable, Identifiable, Hashable, Sendable {
     let capacity: Int
     let buildCost: Int
     let unlockLevel: Int
+    let goldPerHour: Int
+    let goldCap: Int
 }
 
 struct BuildingDefinition: Codable, Identifiable, Hashable, Sendable {
@@ -73,6 +75,12 @@ struct BuildingDefinition: Codable, Identifiable, Hashable, Sendable {
     let maxLevel: Int
     let footprint: [Int]
     let description: String
+    let growSeconds: Int?
+    let harvestFood: Int?
+    let plantCost: Int?
+    let sproutFraction: Double?
+
+    var isFarm: Bool { growSeconds != nil && harvestFood != nil }
 }
 
 struct StarterPlacement: Codable, Hashable, Sendable {

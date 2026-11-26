@@ -6,6 +6,7 @@ import UIKit
 /// pan + pinch camera, one-tap tile selection and saved habitat/building nodes.
 final class IslandScene: SKScene {
     private let store: GameStateStore
+    private let interaction: IslandInteractionModel
     private let loader = SpriteSheetLoader.shared
     private let grid = IslandGrid()
     private let cameraNode = SKCameraNode()
@@ -19,8 +20,9 @@ final class IslandScene: SKScene {
     private var didPan = false
     private var userAdjustedCamera = false
 
-    init(store: GameStateStore, size: CGSize) {
+    init(store: GameStateStore, interaction: IslandInteractionModel, size: CGSize) {
         self.store = store
+        self.interaction = interaction
         super.init(size: size)
         scaleMode = .resizeFill
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
@@ -41,16 +43,19 @@ final class IslandScene: SKScene {
         cameraNode.position = grid.center
         cameraNode.setScale(fitScale())
 
-        buildIsland()
-        buildGrid()
+        addChild(IslandBackdrop.makeIsland(loader: loader, grid: grid))
+        addChild(IslandBackdrop.makeGridMarkers(grid: grid))
         refreshPlacements()
-        buildSelection()
+        selectionNode = IslandBackdrop.makeSelectionNode(loader: loader, grid: grid)
+        if let selectionNode { addChild(selectionNode) }
         installGestures(in: view)
 
+        interaction.onWorldChanged = { [weak self] in self?.refreshPlacements() }
         if let habitat = store.state.placedBuildings.first(where: { $0.kind == .habitat }) {
             selectedTile = habitat.tile
         }
-        select(selectedTile, animated: false)
+        select(selectedTile, animated: false, notify: false)
+        interaction.syncSelection(selectedTile)
         clampCamera()
     }
 
@@ -86,65 +91,10 @@ final class IslandScene: SKScene {
         contentNode = node
     }
 
-    private func buildIsland() {
-        let frames = loader.frames(forGroup: "starter_island")
-        let island: SKSpriteNode
-        if let first = frames.first {
-            let ratio = first.size().height / max(first.size().width, 1)
-            island = SKSpriteNode(texture: first)
-            island.size = CGSize(width: GameConfig.islandWidth, height: GameConfig.islandWidth * ratio)
-            if frames.count > 1 {
-                island.run(.repeatForever(.animate(with: frames, timePerFrame: 0.3)), withKey: "island")
-            }
-        } else {
-            island = SKSpriteNode(texture: loader.placeholderTexture(
-                size: CGSize(width: 900, height: 760), color: .systemTeal))
-            island.size = CGSize(width: GameConfig.islandWidth, height: GameConfig.islandWidth * 0.8)
-        }
-        island.position = grid.center
-        island.zPosition = -100
-        island.name = "starter_island"
-        addChild(island)
-    }
-
-    private func buildGrid() {
-        let markers = SKNode()
-        markers.name = "grid"
-        markers.zPosition = -10
-        for tile in grid.allTiles {
-            let shape = SKShapeNode(path: grid.diamondPath(width: grid.tileWidth * 0.92,
-                                                           height: grid.tileHeight * 0.92))
-            shape.position = grid.position(for: tile)
-            shape.strokeColor = SKColor(white: 1, alpha: 0.10)
-            shape.fillColor = SKColor(white: 1, alpha: 0.03)
-            shape.lineWidth = 1
-            markers.addChild(shape)
-        }
-        addChild(markers)
-    }
-
-    private func buildSelection() {
-        let node: SKNode
-        if let texture = loader.texture(named: "indicator_tile_selection_frame") {
-            let sprite = SKSpriteNode(texture: texture)
-            sprite.size = CGSize(width: grid.tileWidth * 1.15, height: grid.tileHeight * 1.45)
-            node = sprite
-        } else {
-            let shape = SKShapeNode(path: grid.diamondPath())
-            shape.strokeColor = SKColor(white: 1, alpha: 0.95)
-            shape.fillColor = SKColor(white: 1, alpha: 0.08)
-            shape.lineWidth = 3
-            node = shape
-        }
-        node.zPosition = 6000
-        node.alpha = 0
-        addChild(node)
-        selectionNode = node
-    }
-
-    private func select(_ tile: TileCoordinate, animated: Bool = true) {
+    private func select(_ tile: TileCoordinate, animated: Bool = true, notify: Bool = true) {
         guard grid.contains(tile) else { return }
         selectedTile = tile
+        if notify { interaction.updateSelection(tile) }
         guard let selectionNode else { return }
         selectionNode.position = grid.position(for: tile)
         selectionNode.removeAllActions()

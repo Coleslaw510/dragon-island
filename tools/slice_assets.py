@@ -698,6 +698,8 @@ def build_catalog(manifest: dict) -> dict:
         "capacity": seed["elements"][element]["habitatCapacity"],
         "buildCost": seed["elements"][element]["habitatCost"],
         "unlockLevel": 1,
+        "goldPerHour": seed["elements"][element]["goldPerHour"],
+        "goldCap": seed["elements"][element]["goldCap"],
     } for element in order]
 
     return {

@@ -5,13 +5,17 @@ import SwiftUI
 struct IslandHostView: View {
     @ObservedObject var store: GameStateStore
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var interaction: IslandInteractionModel
     @State private var scene: IslandScene
     @State private var showsHint = true
 
     init(store: GameStateStore) {
         self.store = store
+        let model = IslandInteractionModel(store: store)
+        _interaction = StateObject(wrappedValue: model)
         _scene = State(initialValue: IslandScene(
             store: store,
+            interaction: model,
             size: CGSize(width: 1194, height: 834)
         ))
     }
@@ -42,6 +46,9 @@ struct IslandHostView: View {
                 .allowsHitTesting(false)
                 .transition(.opacity)
             }
+
+            BuildPanelView(store: store, interaction: interaction)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         }
         .background(Color.black)
         .statusBarHidden(true)
@@ -53,7 +60,10 @@ struct IslandHostView: View {
             }
         }
         .onChange(of: scenePhase) { _, phase in
-            if phase != .active {
+            if phase == .active {
+                store.beginSession()
+                scene.refreshPlacements()
+            } else {
                 store.endSession()
             }
         }

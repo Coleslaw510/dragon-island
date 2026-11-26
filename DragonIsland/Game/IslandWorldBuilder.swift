@@ -4,14 +4,14 @@ import SpriteKit
 /// camera and input; this builder is purely about turning records into nodes.
 enum IslandWorldBuilder {
     static func makeNode(state: IslandSaveState, catalog: GameCatalog,
-                         grid: IslandGrid, loader: SpriteSheetLoader) -> SKNode {
+                         grid: IslandGrid, loader: SpriteSheetLoader,
+                         now: Date = .now) -> SKNode {
         let root = SKNode()
         root.name = "placements"
 
         for placed in state.placedBuildings.sorted(by: drawOrder) {
-            guard let name = textureName(for: placed, catalog: catalog),
-                  let texture = loader.texture(named: name) else { continue }
-            let node = makeBuildingNode(placed: placed, texture: texture, grid: grid)
+            guard let node = makePlacementNode(placed: placed, state: state, catalog: catalog,
+                                               grid: grid, loader: loader, now: now) else { continue }
             root.addChild(node)
         }
 
@@ -24,21 +24,27 @@ enum IslandWorldBuilder {
         return root
     }
 
-    static func textureName(for placed: PlacedBuilding, catalog: GameCatalog) -> String? {
+    static func textureName(for placed: PlacedBuilding, catalog: GameCatalog,
+                            stage: FarmStage = .empty) -> String? {
         switch placed.kind {
         case .habitat:
             return catalog.habitat(placed.definitionID)?.texture
         case .building:
             return catalog.building(placed.definitionID)?.texture
         case .farm:
-            return "farm_ready_to_harvest"
+            return stage.textureName
         }
     }
 
     // MARK: - Nodes
 
-    private static func makeBuildingNode(placed: PlacedBuilding, texture: SKTexture,
-                                         grid: IslandGrid) -> SKNode {
+    private static func makePlacementNode(placed: PlacedBuilding, state: IslandSaveState,
+                                          catalog: GameCatalog, grid: IslandGrid,
+                                          loader: SpriteSheetLoader, now: Date) -> SKNode? {
+        let stage = FarmGrowth.stage(for: placed, catalog: catalog, now: now)
+        guard let name = textureName(for: placed, catalog: catalog, stage: stage),
+              let texture = loader.texture(named: name) else { return nil }
+
         let width = grid.tileWidth * widthFactor(for: placed.kind)
         let height = width * texture.size().height / max(texture.size().width, 1)
         let node = SKSpriteNode(texture: texture)
@@ -49,7 +55,92 @@ enum IslandWorldBuilder {
         node.name = placed.id.uuidString
         node.addChild(shadow(width: width * 0.62, height: grid.tileHeight * 0.18,
                              y: -height * 0.08))
+
+        switch placed.kind {
+        case .habitat:
+            scheduleHabitat(placed, state: state, catalog: catalog, node: node,
+                            grid: grid, loader: loader, now: now)
+        case .farm:
+            scheduleFarm(placed, stage: stage, catalog: catalog, node: node,
+                         grid: grid, loader: loader, now: now)
+        case .building:
+            break
+        }
         return node
+    }
+
+    private static func scheduleHabitat(_ placed: PlacedBuilding, state: IslandSaveState,
+                                        catalog: GameCatalog, node: SKSpriteNode,
+                                        grid: IslandGrid, loader: SpriteSheetLoader, now: Date) {
+        guard let status = IslandEconomy.status(for: placed, state: state, catalog: catalog, now: now)
+        else { return }
+        if status.isReady {
+            addIndicator("indicator_gold_coin_bubble", to: node, grid: grid, loader: loader)
+        } else if let delay = status.secondsUntilReady {
+            node.run(.sequence([
+                .wait(forDuration: delay + 0.5),
+                .run { [weak node] in
+                    guard let node else { return }
+                    addIndicator("indicator_gold_coin_bubble", to: node, grid: grid, loader: loader)
+                },
+            ]), withKey: "goldReady")
+        }
+    }
+
+    private static func scheduleFarm(_ placed: PlacedBuilding, stage: FarmStage,
+                                     catalog: GameCatalog, node: SKSpriteNode,
+                                     grid: IslandGrid, loader: SpriteSheetLoader, now: Date) {
+        guard let definition = catalog.building(placed.definitionID), definition.isFarm else { return }
+        if stage == .ready {
+            addIndicator("indicator_food_harvest_bubble", to: node, grid: grid, loader: loader)
+            return
+        }
+        let transitions = FarmGrowth.pendingTransitions(plantedAt: placed.plantedAt,
+                                                        definition: definition, now: now)
+        guard !transitions.isEmpty else { return }
+
+        var actions: [SKAction] = []
+        var previous: TimeInterval = 0
+        for transition in transitions {
+            actions.append(.wait(forDuration: max(0, transition.delay - previous)))
+            previous = transition.delay
+            actions.append(.run { [weak node] in
+                guard let node else { return }
+                applyFarmStage(transition.stage, to: node, placed: placed, catalog: catalog,
+                               grid: grid, loader: loader)
+            })
+        }
+        node.run(.sequence(actions), withKey: "farmGrowth")
+    }
+
+    private static func applyFarmStage(_ stage: FarmStage, to node: SKSpriteNode,
+                                       placed: PlacedBuilding, catalog: GameCatalog,
+                                       grid: IslandGrid, loader: SpriteSheetLoader) {
+        guard let name = textureName(for: placed, catalog: catalog, stage: stage),
+              let texture = loader.texture(named: name) else { return }
+        node.texture = texture
+        let width = grid.tileWidth * widthFactor(for: placed.kind)
+        node.size = CGSize(width: width, height: width * texture.size().height / max(texture.size().width, 1))
+        if stage == .ready {
+            addIndicator("indicator_food_harvest_bubble", to: node, grid: grid, loader: loader)
+        }
+    }
+
+    private static func addIndicator(_ name: String, to node: SKSpriteNode,
+                                     grid: IslandGrid, loader: SpriteSheetLoader) {
+        guard node.childNode(withName: name) == nil,
+              let texture = loader.texture(named: name) else { return }
+        let width = grid.tileWidth * 0.34
+        let sprite = SKSpriteNode(texture: texture)
+        sprite.size = CGSize(width: width, height: width * texture.size().height / max(texture.size().width, 1))
+        sprite.position = CGPoint(x: 0, y: node.size.height * 0.82)
+        sprite.zPosition = 8
+        sprite.name = name
+        sprite.run(.repeatForever(.sequence([
+            .moveBy(x: 0, y: 4, duration: 0.9),
+            .moveBy(x: 0, y: -4, duration: 0.9),
+        ])), withKey: "bob")
+        node.addChild(sprite)
     }
 
     private static func makeDragonNode(dragon: OwnedDragon, frames: [SKTexture], first: SKTexture,
