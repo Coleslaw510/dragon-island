@@ -44,7 +44,34 @@
   "opponent": {
     "matchPlayerTeamSize": true,
     "levelOffset": 0,
-    "minLevel": 1
+    "minLevel": 1,
+    "encounters": [
+      {
+        "id": "ash_watch",
+        "name": "Ash Watch",
+        "dragonIDs": ["blaze", "pebble", "breeze"]
+      },
+      {
+        "id": "tide_guard",
+        "name": "Tide Guard",
+        "dragonIDs": ["tide", "frost", "fern"]
+      },
+      {
+        "id": "storm_ring",
+        "name": "Storm Ring",
+        "dragonIDs": ["spark", "breeze", "gleam"]
+      },
+      {
+        "id": "iron_court",
+        "name": "Iron Court",
+        "dragonIDs": ["rivet", "pebble", "twinkle"]
+      },
+      {
+        "id": "wild_mix",
+        "name": "Wild Mix",
+        "dragonIDs": ["tide", "spark", "pebble", "fern"]
+      }
+    ]
   },
   "rewards": {
     "gold": 140,

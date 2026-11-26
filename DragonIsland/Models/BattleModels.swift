@@ -32,7 +32,8 @@ struct BattleRules: Codable, Sendable {
         opponent: BattleOpponentRules(
             matchPlayerTeamSize: true,
             levelOffset: 0,
-            minLevel: 1
+            minLevel: 1,
+            encounters: nil
         ),
         rewards: BattleRewards(gold: 0, food: 0, xp: 0, dragonXP: 0)
     )
@@ -82,10 +83,17 @@ struct BattleMove: Codable, Identifiable, Hashable, Sendable {
     let power: Double
 }
 
+struct BattleEncounter: Codable, Identifiable, Hashable, Sendable {
+    let id: String
+    let name: String
+    let dragonIDs: [String]
+}
+
 struct BattleOpponentRules: Codable, Sendable {
     let matchPlayerTeamSize: Bool
     let levelOffset: Int
     let minLevel: Int
+    let encounters: [BattleEncounter]?
 }
 
 struct BattleRewards: Codable, Sendable {
@@ -111,6 +119,7 @@ struct BattleFighter: Identifiable, Sendable {
     let speed: Int
     var cooldowns: [String: Int]
     let isPlayer: Bool
+    let spritePrefix: String?
 
     var isAlive: Bool { health > 0 }
     var healthFraction: Double {

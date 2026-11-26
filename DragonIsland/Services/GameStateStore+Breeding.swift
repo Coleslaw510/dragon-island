@@ -77,7 +77,8 @@ extension GameStateStore {
         }
 
         let blueprint = rules.blueprint(parentA: definitionA.element, parentB: definitionB.element)
-        guard catalog.dragon(blueprint.dragonID) != nil else { return .failure(.ruleMissing) }
+        guard let blueprintDragon = catalog.dragon(blueprint.dragonID),
+              isDragonAvailable(blueprintDragon) else { return .failure(.ruleMissing) }
 
         state.resources.gold -= rules.breeding.goldCost
         state.resources.food -= rules.breeding.foodCost
@@ -137,6 +138,7 @@ extension GameStateStore {
         guard moved > 0 else { return 0 }
         state.eggs = nextEggs.isEmpty ? nil : nextEggs
         state.breedingSessions = remaining.isEmpty ? nil : remaining
+        recordCompletedBreedings(moved)
         save()
         return moved
     }
@@ -171,6 +173,8 @@ extension GameStateStore {
         )
         state.eggs = nextEggs.isEmpty ? nil : nextEggs
         state.ownedDragons.append(dragon)
+        recordHatchedDragon()
+        playSound(.hatch)
         state.selectedDragonID = dragon.id
         IslandEconomy.reconcileAssignments(&state, catalog: catalog, now: now)
         syncIslandLevel()

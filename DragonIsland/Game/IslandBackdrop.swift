@@ -6,19 +6,20 @@ enum IslandBackdrop {
     static func makeIsland(loader: SpriteSheetLoader, grid: IslandGrid) -> SKNode {
         let frames = loader.frames(forGroup: "starter_island")
         let island: SKSpriteNode
+        let width = max(GameConfig.islandWidth, grid.worldSize.width + 180)
         if let first = frames.first {
             let ratio = first.size().height / max(first.size().width, 1)
             island = SKSpriteNode(texture: first)
-            island.size = CGSize(width: GameConfig.islandWidth, height: GameConfig.islandWidth * ratio)
+            island.size = CGSize(width: width, height: width * ratio)
             if frames.count > 1 {
                 island.run(.repeatForever(.animate(with: frames, timePerFrame: 0.3)), withKey: "island")
             }
         } else {
             island = SKSpriteNode(texture: loader.placeholderTexture(
                 size: CGSize(width: 900, height: 760), color: .systemTeal))
-            island.size = CGSize(width: GameConfig.islandWidth, height: GameConfig.islandWidth * 0.8)
+            island.size = CGSize(width: width, height: width * 0.8)
         }
-        island.position = grid.center
+        island.position = grid.baseCenter
         island.zPosition = -100
         island.name = "starter_island"
         return island

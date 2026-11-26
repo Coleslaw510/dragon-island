@@ -32,18 +32,23 @@ enum BattleEngine {
             speed: scaling.scaled(definition.baseSpeed,
                                   perLevel: scaling.speedPerLevel, level: level),
             cooldowns: cooldowns,
-            isPlayer: isPlayer
+            isPlayer: isPlayer,
+            spritePrefix: definition.spritePrefix
         )
     }
 
-    /// Deterministic opponent roster.  Dragons the player fields are skipped
-    /// while the catalog has enough others, so teams rarely mirror each other.
+    /// Opponent roster from the JSON encounter table.  Rematches advance to
+    /// the next encounter, and locked reward dragons never appear.
     static func makeEnemyTeam(catalog: GameCatalog, rules: BattleRules,
-                              playerTeam: [BattleFighter]) -> [BattleFighter] {
+                              playerTeam: [BattleFighter], battleIndex: Int = 0,
+                              availableIDs: Set<String>? = nil) -> [BattleFighter] {
         let size = rules.opponent.matchPlayerTeamSize
             ? min(rules.teamSize, max(1, playerTeam.count))
             : rules.teamSize
-        guard size > 0, !catalog.dragons.isEmpty else { return [] }
+        guard size > 0 else { return [] }
+
+        let available = catalog.dragons.filter { availableIDs?.contains($0.id) ?? true }
+        guard !available.isEmpty else { return [] }
 
         let averageLevel = playerTeam.isEmpty
             ? rules.opponent.minLevel
@@ -51,10 +56,26 @@ enum BattleEngine {
         let level = max(rules.opponent.minLevel, averageLevel + rules.opponent.levelOffset)
 
         let playerDefinitions = Set(playerTeam.map(\.definitionID))
-        var pool = catalog.dragons.filter { !playerDefinitions.contains($0.id) }
-        if pool.count < size { pool = catalog.dragons }
+        let encounters = rules.opponent.encounters ?? []
+        let encounter = encounters.isEmpty ? nil : encounters[battleIndex % encounters.count]
+        var chosen: [DragonDefinition] = []
 
-        return pool.prefix(size).map { definition in
+        func append(_ definitions: [DragonDefinition]) {
+            for definition in definitions
+            where chosen.count < size && !chosen.contains(where: { $0.id == definition.id }) {
+                chosen.append(definition)
+            }
+        }
+
+        if let encounter {
+            append(encounter.dragonIDs.compactMap { catalog.dragon($0) }
+                .filter { availableIDs?.contains($0.id) ?? true })
+        }
+        let others = available.filter { !playerDefinitions.contains($0.id) }
+        append(others.shuffled())
+        append(available.shuffled())
+
+        return chosen.map { definition in
             makeFighter(ownedID: nil, name: definition.displayName, definition: definition,
                         level: level, rules: rules, isPlayer: false)
         }

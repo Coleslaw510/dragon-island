@@ -14,6 +14,7 @@ extension GameStateStore {
         where participants.contains(state.ownedDragons[index].id) {
             grantBattleExperience(rewards.dragonXP, to: index)
         }
+        recordBattleVictory()
         syncIslandLevel()
         save()
     }

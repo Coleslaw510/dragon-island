@@ -15,13 +15,25 @@ final class SpriteSheetLoader {
 
     // MARK: - Dragons
 
-    func frames(forDragon id: String, state: DragonAnimationState) -> [SKTexture] {
-        textures(named: frameNames(forDragon: id, state: state))
+    func frames(forDragon id: String, spritePrefix: String? = nil,
+                state: DragonAnimationState) -> [SKTexture] {
+        textures(named: frameNames(forDragon: id, spritePrefix: spritePrefix, state: state))
     }
 
     /// Asset names for SwiftUI views that cycle frames with `TimelineView`.
-    func frameNames(forDragon id: String, state: DragonAnimationState) -> [String] {
-        manifest?.dragons[id]?.animations[state.rawValue]?.frames ?? []
+    /// Reward dragons can temporarily borrow another dragon's sheet through
+    /// their `spritePrefix`.
+    func frameNames(forDragon id: String, spritePrefix: String? = nil,
+                    state: DragonAnimationState) -> [String] {
+        if let frames = manifest?.dragons[id]?.animations[state.rawValue]?.frames {
+            return frames
+        }
+        guard let spritePrefix, let key = Self.manifestKey(from: spritePrefix) else { return [] }
+        return manifest?.dragons[key]?.animations[state.rawValue]?.frames ?? []
+    }
+
+    private static func manifestKey(from spritePrefix: String) -> String {
+        spritePrefix.hasPrefix("dragon_") ? String(spritePrefix.dropFirst(7)) : spritePrefix
     }
 
     /// Row order matches the sheet: 0 idle, 1 walk, 2 fly, 3 action.

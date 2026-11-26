@@ -237,6 +237,45 @@
       "baseAttack": 14,
       "baseDefense": 9,
       "baseSpeed": 13
+    },
+    {
+      "id": "emberling",
+      "displayName": "Emberling",
+      "element": "fire",
+      "rarity": "reward",
+      "actionName": "breathing_fire",
+      "spritePrefix": "dragon_blaze",
+      "baseHealth": 105,
+      "baseAttack": 13,
+      "baseDefense": 9,
+      "baseSpeed": 11,
+      "unlockAchievementID": "growing_book"
+    },
+    {
+      "id": "glaciera",
+      "displayName": "Glaciera",
+      "element": "ice",
+      "rarity": "reward",
+      "actionName": "frost_breath",
+      "spritePrefix": "dragon_frost",
+      "baseHealth": 112,
+      "baseAttack": 12,
+      "baseDefense": 11,
+      "baseSpeed": 9,
+      "unlockAchievementID": "kind_hatchery"
+    },
+    {
+      "id": "tidecaller",
+      "displayName": "Tidecaller",
+      "element": "water",
+      "rarity": "reward",
+      "actionName": "tidal_rush",
+      "spritePrefix": "dragon_tide",
+      "baseHealth": 108,
+      "baseAttack": 12,
+      "baseDefense": 10,
+      "baseSpeed": 10,
+      "unlockAchievementID": "wide_collection"
     }
   ],
   "habitats": [

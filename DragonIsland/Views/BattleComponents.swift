@@ -7,9 +7,11 @@ struct BattleDragonSprite: View {
     let height: CGFloat
     var mirrored = false
     var fallback = "badge_star"
+    var spritePrefix: String? = nil
 
     private var frames: [String] {
-        SpriteSheetLoader.shared.frameNames(forDragon: definitionID, state: state)
+        SpriteSheetLoader.shared.frameNames(forDragon: definitionID,
+                                            spritePrefix: spritePrefix, state: state)
     }
 
     var body: some View {
@@ -71,7 +73,8 @@ struct BattleFighterCard: View {
                 state: isAttacking ? .action : .idle,
                 height: 64,
                 mirrored: isEnemy,
-                fallback: badgeTexture
+                fallback: badgeTexture,
+                spritePrefix: fighter.spritePrefix
             )
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 4) {
@@ -107,6 +110,7 @@ struct BattleRosterCard: View {
     let dragon: OwnedDragon
     let element: ElementType
     let badgeTexture: String
+    var spritePrefix: String? = nil
     let selected: Bool
     let action: () -> Void
 
@@ -114,7 +118,8 @@ struct BattleRosterCard: View {
         Button(action: action) {
             HStack(spacing: 9) {
                 BattleDragonSprite(definitionID: dragon.definitionID, state: .idle,
-                                   height: 38, fallback: badgeTexture)
+                                   height: 38, fallback: badgeTexture,
+                                   spritePrefix: spritePrefix)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(dragon.nickname)
                         .font(.system(size: 13, weight: .semibold, design: .rounded))

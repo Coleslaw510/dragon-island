@@ -18,7 +18,8 @@ enum IslandWorldBuilder {
 
         for dragon in state.ownedDragons.sorted(by: { $0.tileX + $0.tileY < $1.tileX + $1.tileY }) {
             guard let definition = catalog.dragon(dragon.definitionID) else { continue }
-            let frames = loader.frames(forDragon: definition.id, state: .idle)
+            let frames = loader.frames(forDragon: definition.id,
+                                       spritePrefix: definition.spritePrefix, state: .idle)
             guard let first = frames.first else { continue }
             root.addChild(
                 DragonNodeFactory.makeNode(dragon: dragon, frames: frames, first: first,

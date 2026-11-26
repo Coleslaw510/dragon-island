@@ -58,7 +58,7 @@ struct BattleView: View {
                     .foregroundStyle(.white.opacity(0.7))
             }
             Spacer()
-            Button("Forfeit") { dismiss() }
+            Button("Close") { dismiss() }
                 .buttonStyle(.bordered)
                 .tint(.white)
                 .font(.system(size: 13, weight: .bold, design: .rounded))
@@ -77,6 +77,7 @@ struct BattleView: View {
                         dragon: dragon,
                         element: element(for: dragon),
                         badgeTexture: badge(for: element(for: dragon)),
+                        spritePrefix: store.catalog.dragon(dragon.definitionID)?.spritePrefix,
                         selected: selectedIDs.contains(dragon.id)
                     ) {
                         toggle(dragon.id)

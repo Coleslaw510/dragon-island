@@ -5,6 +5,8 @@ enum GameConfig {
 
     static let gridColumns = 7
     static let gridRows = 7
+    static let maxGridColumns = 12
+    static let maxGridRows = 12
     static let tileWidth: CGFloat = 148
     static let tileHeight: CGFloat = 102
 

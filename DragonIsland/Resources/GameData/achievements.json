@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "achievements": [
+    {
+      "id": "first_hatch",
+      "title": "First Steps",
+      "detail": "Hatch a dragon from the hatchery.",
+      "metric": "hatchedDragons",
+      "goal": 1,
+      "rewards": {
+        "gold": 120,
+        "food": 40
+      }
+    },
+    {
+      "id": "kind_hatchery",
+      "title": "Kind Hatchery",
+      "detail": "Hatch five dragons.",
+      "metric": "hatchedDragons",
+      "goal": 5,
+      "rewards": {
+        "gems": 10,
+        "dragonID": "glaciera"
+      }
+    },
+    {
+      "id": "first_pair",
+      "title": "Two of a Kind",
+      "detail": "Finish three breeding pairs.",
+      "metric": "breedingsCompleted",
+      "goal": 3,
+      "rewards": {
+        "gold": 200,
+        "xp": 60
+      }
+    },
+    {
+      "id": "growing_book",
+      "title": "Growing Book",
+      "detail": "Collect five unique dragons.",
+      "metric": "uniqueDragons",
+      "goal": 5,
+      "rewards": {
+        "gold": 250,
+        "dragonID": "emberling"
+      }
+    },
+    {
+      "id": "wide_collection",
+      "title": "Wide Collection",
+      "detail": "Collect eight unique dragons.",
+      "metric": "uniqueDragons",
+      "goal": 8,
+      "rewards": {
+        "gems": 15,
+        "dragonID": "tidecaller"
+      }
+    },
+    {
+      "id": "first_victory",
+      "title": "Arena Debut",
+      "detail": "Win a battle in the arena.",
+      "metric": "battleWins",
+      "goal": 1,
+      "rewards": {
+        "gold": 150
+      }
+    },
+    {
+      "id": "arena_regular",
+      "title": "Arena Regular",
+      "detail": "Win five battles.",
+      "metric": "battleWins",
+      "goal": 5,
+      "rewards": {
+        "gems": 12,
+        "expansionID": "eastern_wilds"
+      }
+    }
+  ],
+  "expansions": [
+    {
+      "id": "eastern_wilds",
+      "displayName": "Eastern Wilds",
+      "columns": 9,
+      "rows": 9
+    }
+  ]
+}

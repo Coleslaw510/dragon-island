@@ -85,5 +85,11 @@ struct IslandHostView: View {
         .onChange(of: store.state.breedingSessions) { _, _ in
             scene.refreshPlacements()
         }
+        .onChange(of: store.state.unlockedGridColumns) { _, _ in
+            scene.updateGrid(for: store.state)
+        }
+        .onChange(of: store.state.unlockedGridRows) { _, _ in
+            scene.updateGrid(for: store.state)
+        }
     }
 }

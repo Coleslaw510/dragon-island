@@ -109,6 +109,7 @@ struct DragonBookView: View {
     private func definitionCard(_ definition: DragonDefinition) -> some View {
         let dragons = store.state.ownedDragons.filter { $0.definitionID == definition.id }
         let bestLevel = dragons.map(\.level).max()
+        let locked = store.isDragonLocked(definition)
         return HStack(spacing: 9) {
             Image(badge(for: definition.element))
                 .resizable()
@@ -116,13 +117,20 @@ struct DragonBookView: View {
                 .frame(width: 30, height: 30)
                 .opacity(dragons.isEmpty ? 0.35 : 1)
             VStack(alignment: .leading, spacing: 1) {
-                Text(dragons.isEmpty ? "???" : definition.displayName)
+                Text(locked ? "???" : (dragons.isEmpty ? "???" : definition.displayName))
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
-                Text(statusText(count: dragons.count, bestLevel: bestLevel))
+                Text(locked ? lockedText(definition)
+                             : statusText(count: dragons.count, bestLevel: bestLevel))
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.6))
+                    .lineLimit(1)
             }
             Spacer(minLength: 0)
+            if locked {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.4))
+            }
         }
         .foregroundStyle(.white)
         .padding(9)
@@ -143,6 +151,11 @@ struct DragonBookView: View {
         guard count > 0, let bestLevel else { return "Unseen" }
         let suffix = count > 1 ? " · \(count) owned" : ""
         return "Lv \(bestLevel)\(suffix)"
+    }
+
+    private func lockedText(_ definition: DragonDefinition) -> String {
+        guard let title = store.achievementTitle(forDragon: definition) else { return "Locked" }
+        return "Locked · \(title)"
     }
 
     private func progressText(_ dragon: OwnedDragon, config: LevelingConfig, needed: Int) -> String {

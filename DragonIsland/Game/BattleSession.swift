@@ -57,9 +57,12 @@ final class BattleSession: ObservableObject {
         guard !roster.isEmpty else { return }
 
         playerTeam = roster
+        let battleIndex = store.recordBattleStarted()
         enemyTeam = BattleEngine.makeEnemyTeam(catalog: store.catalog,
                                                rules: store.battleRules,
-                                               playerTeam: roster)
+                                               playerTeam: roster,
+                                               battleIndex: battleIndex,
+                                               availableIDs: store.availableDragonIDs)
         guard !enemyTeam.isEmpty else { return }
 
         phase = .fighting
@@ -77,7 +80,11 @@ final class BattleSession: ObservableObject {
     }
 
     func forfeit() {
-        finish(.forfeit)
+        if phase == .fighting, enemyTeam.allSatisfy({ !$0.isAlive }) {
+            finish(.victory)
+        } else {
+            finish(.forfeit)
+        }
     }
 
     // MARK: - Turn flow
@@ -134,6 +141,7 @@ final class BattleSession: ObservableObject {
         attackingID = actorID
         update(target.id) { unit in unit.health = max(0, unit.health - result.amount) }
         update(actorID) { unit in unit.cooldowns[move.id] = move.cooldownTurns }
+        store.playSound(.battleHit)
 
         appendLog("\(actor.name) used \(move.displayName) on \(target.name) for \(result.amount)."
                   + effectNote(result.multiplier))
@@ -169,8 +177,12 @@ final class BattleSession: ObservableObject {
         return false
     }
 
-    private func finish(_ result: BattleOutcome) {
+    private func finish(_ requested: BattleOutcome) {
         guard outcome == nil else { return }
+        // A close tap during the post-hit pause must not erase a win that is
+        // already visible on the enemy side.
+        let enemiesDefeated = !enemyTeam.isEmpty && enemyTeam.allSatisfy { !$0.isAlive }
+        let result = enemiesDefeated ? .victory : requested
         outcome = result
         phase = .finished
         activeID = nil
@@ -179,6 +191,7 @@ final class BattleSession: ObservableObject {
         switch result {
         case .victory:
             store.applyBattleRewards(participantIDs: playerTeam.compactMap(\.ownedDragonID))
+            store.playSound(.victory)
             appendLog("Victory! The arena is yours.")
         case .defeat:
             appendLog("Your team needs rest.")

@@ -153,7 +153,7 @@ enum IslandEconomy {
     /// Nearest free plot for a newly hatched dragon, so it does not stand on
     /// top of a building or another dragon.
     static func freeTile(near tile: TileCoordinate, state: IslandSaveState) -> TileCoordinate {
-        let grid = IslandGrid()
+        let grid = IslandGrid.forSave(state)
         var best = tile
         var bestDistance = Int.max
         for candidate in grid.allTiles {

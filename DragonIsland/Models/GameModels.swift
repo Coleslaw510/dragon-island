@@ -23,6 +23,7 @@ struct DragonDefinition: Codable, Identifiable, Hashable, Sendable {
     let baseAttack: Int
     let baseDefense: Int
     let baseSpeed: Int
+    let unlockAchievementID: String? = nil
 }
 
 /// A dragon the player owns.  Definition data stays in JSON; this record only
@@ -114,6 +115,15 @@ struct IslandSaveState: Codable, Hashable, Sendable {
     var didCompleteTutorial: Bool
     var breedingSessions: [BreedingSession]? = nil
     var eggs: [DragonEgg]? = nil
+    var dragonsHatched: Int? = nil
+    var breedingsCompleted: Int? = nil
+    var battleWins: Int? = nil
+    var battlesFought: Int? = nil
+    var completedAchievementIDs: [String]? = nil
+    var grantedRewardDragonIDs: [String]? = nil
+    var soundEnabled: Bool? = nil
+    var unlockedGridColumns: Int? = nil
+    var unlockedGridRows: Int? = nil
 
     func habitat(for element: ElementType) -> PlacedBuilding? {
         placedBuildings.first { $0.kind == .habitat && $0.element == element }

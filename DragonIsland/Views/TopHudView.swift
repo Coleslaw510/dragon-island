@@ -21,14 +21,16 @@ struct TopHudView: View {
             actionButton(.battle)
             actionButton(.codex)
 
-            Button(action: store.save) {
+            Button {
+                sheet = .settings
+            } label: {
                 Image("icon_settings_gear")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 22, height: 22)
             }
             .buttonStyle(HudButtonStyle())
-            .accessibilityLabel(Text("Save game"))
+            .accessibilityLabel(Text("Settings"))
         }
         .padding(.horizontal, 18)
         .padding(.top, 10)
@@ -40,6 +42,8 @@ struct TopHudView: View {
                 HatcheryView(store: store)
             case .codex:
                 DragonBookView(store: store)
+            case .settings:
+                SettingsView(store: store)
             }
         }
         .fullScreenCover(isPresented: $showsBattle) {
@@ -104,7 +108,7 @@ private struct HudButtonStyle: ButtonStyle {
 }
 
 private enum HudSheet: String, Identifiable {
-    case breeding, hatchery, codex
+    case breeding, hatchery, codex, settings
 
     var id: String { rawValue }
 }

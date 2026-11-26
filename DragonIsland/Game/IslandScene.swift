@@ -8,10 +8,12 @@ final class IslandScene: SKScene {
     private let store: GameStateStore
     private let interaction: IslandInteractionModel
     private let loader = SpriteSheetLoader.shared
-    private let grid = IslandGrid()
+    private var grid: IslandGrid
     private let cameraNode = SKCameraNode()
 
     private var contentNode: SKNode?
+    private var backdropNode: SKNode?
+    private var markerNode: SKNode?
     private var selectionNode: SKNode?
     private var pinchRecognizer: UIPinchGestureRecognizer?
     private var selectedTile = GameConfig.initialSelection
@@ -23,6 +25,7 @@ final class IslandScene: SKScene {
     init(store: GameStateStore, interaction: IslandInteractionModel, size: CGSize) {
         self.store = store
         self.interaction = interaction
+        self.grid = IslandGrid.forSave(store.state)
         super.init(size: size)
         scaleMode = .resizeFill
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
@@ -43,8 +46,7 @@ final class IslandScene: SKScene {
         cameraNode.position = grid.center
         cameraNode.setScale(fitScale())
 
-        addChild(IslandBackdrop.makeIsland(loader: loader, grid: grid))
-        addChild(IslandBackdrop.makeGridMarkers(grid: grid))
+        installStaticNodes()
         refreshPlacements()
         selectionNode = IslandBackdrop.makeSelectionNode(loader: loader, grid: grid)
         if let selectionNode { addChild(selectionNode) }
@@ -90,6 +92,33 @@ final class IslandScene: SKScene {
         )
         addChild(node)
         contentNode = node
+    }
+
+    /// Applies an island expansion without rebuilding the whole scene.  Old
+    /// tile coordinates keep their anchored position.
+    func updateGrid(for state: IslandSaveState) {
+        let next = IslandGrid.forSave(state)
+        guard next.columns != grid.columns || next.rows != grid.rows else { return }
+        grid = next
+        backdropNode?.removeFromParent()
+        markerNode?.removeFromParent()
+        installStaticNodes()
+        refreshPlacements()
+        selectionNode?.position = grid.position(for: selectedTile)
+        if !userAdjustedCamera {
+            cameraNode.position = grid.center
+            cameraNode.setScale(fitScale())
+        }
+        clampCamera()
+    }
+
+    private func installStaticNodes() {
+        let backdrop = IslandBackdrop.makeIsland(loader: loader, grid: grid)
+        addChild(backdrop)
+        backdropNode = backdrop
+        let markers = IslandBackdrop.makeGridMarkers(grid: grid)
+        addChild(markers)
+        markerNode = markers
     }
 
     private func select(_ tile: TileCoordinate, animated: Bool = true, notify: Bool = true) {

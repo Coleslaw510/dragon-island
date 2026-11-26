@@ -122,10 +122,12 @@ final class IslandInteractionModel: ObservableObject {
         case .habitat:
             let gold = store.collectHabitat(id: placed.id)
             guard gold > 0 else { return }
+            store.playSound(.collect)
             statusMessage = "Collected \(gold) gold."
         case .farm:
             let food = store.harvestFarm(id: placed.id)
             guard food > 0 else { return }
+            store.playSound(.collect)
             statusMessage = "Harvested \(food) food."
         case .building:
             hatch(in: placed)

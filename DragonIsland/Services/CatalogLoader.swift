@@ -28,6 +28,10 @@ enum CatalogLoader {
         try decode(BattleRules.self, named: "battle_rules", bundle: bundle)
     }
 
+    static func loadAchievements(bundle: Bundle = .main) throws -> AchievementCatalog {
+        try decode(AchievementCatalog.self, named: "achievements", bundle: bundle)
+    }
+
     private static func decode<T: Decodable>(_ type: T.Type, named name: String, bundle: Bundle) throws -> T {
         let url = bundle.url(forResource: name, withExtension: "json", subdirectory: "GameData")
             ?? bundle.url(forResource: name, withExtension: "json")

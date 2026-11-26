@@ -9,16 +9,19 @@ final class GameStateStore: ObservableObject {
     let catalog: GameCatalog
     let rules: BreedingRules
     let battleRules: BattleRules
+    let achievements: AchievementCatalog
     private let fileURL: URL
     private let fileManager: FileManager
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
     init(catalog: GameCatalog, rules: BreedingRules = .empty,
-         battleRules: BattleRules = .empty, fileManager: FileManager = .default) {
+         battleRules: BattleRules = .empty, achievements: AchievementCatalog = .empty,
+         fileManager: FileManager = .default) {
         self.catalog = catalog
         self.rules = rules
         self.battleRules = battleRules
+        self.achievements = achievements
         self.fileManager = fileManager
 
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
@@ -41,6 +44,7 @@ final class GameStateStore: ObservableObject {
         self.state = loaded
         IslandEconomy.reconcileAssignments(&state, catalog: catalog, now: .now)
         syncIslandLevel()
+        evaluateAchievements()
         beginSession()
     }
 
@@ -103,7 +107,7 @@ final class GameStateStore: ObservableObject {
     @discardableResult
     func buildPlacement(kind: PlacementKind, definitionID: String, tile: TileCoordinate,
                         now: Date = .now) -> Result<PlacedBuilding, PlacementFailure> {
-        guard IslandGrid().contains(tile) else { return .failure(.outOfBounds) }
+        guard IslandGrid.forSave(state).contains(tile) else { return .failure(.outOfBounds) }
         guard IslandEconomy.placement(at: tile, state: state) == nil else { return .failure(.tileOccupied) }
         guard IslandEconomy.definitionExists(kind: kind, definitionID: definitionID, catalog: catalog),
               let cost = IslandEconomy.cost(kind: kind, definitionID: definitionID, catalog: catalog)
@@ -134,7 +138,7 @@ final class GameStateStore: ObservableObject {
 
     @discardableResult
     func movePlacement(id: UUID, to tile: TileCoordinate) -> Result<PlacedBuilding, PlacementFailure> {
-        guard IslandGrid().contains(tile) else { return .failure(.outOfBounds) }
+        guard IslandGrid.forSave(state).contains(tile) else { return .failure(.outOfBounds) }
         guard let index = state.placedBuildings.firstIndex(where: { $0.id == id }) else {
             return .failure(.unknownDefinition)
         }
