@@ -1,7 +1,7 @@
 import Foundation
 
 /// Text and eligibility helpers for the selected building.  Kept out of the
-/// panel so `BuildPanelView` stays small and easy to scan.
+/// info panel so `SelectionInfoPanel` stays small and easy to scan.
 enum PlacementStatusText {
     static func detail(for placed: PlacedBuilding, store: GameStateStore, now: Date) -> String {
         switch placed.kind {

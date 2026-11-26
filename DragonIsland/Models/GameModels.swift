@@ -68,8 +68,6 @@ struct ResourceState: Codable, Hashable, Sendable {
     var gems: Int
     var xp: Int
 
-    static let starter = ResourceState(gold: 750, food: 400, gems: 25, xp: 0)
-
     enum Kind: String, Codable, CaseIterable, Sendable {
         case gold, food, gems, xp
     }
@@ -113,6 +111,7 @@ struct IslandSaveState: Codable, Hashable, Sendable {
     var lastCollectionAt: Date
     var unlockedElements: [ElementType]
     var didCompleteTutorial: Bool
+    var tutorialStepID: String? = nil
     var breedingSessions: [BreedingSession]? = nil
     var eggs: [DragonEgg]? = nil
     var dragonsHatched: Int? = nil

@@ -1,30 +1,25 @@
 import Foundation
 
 enum SaveStateFactory {
-    /// Seeds a fresh island from the catalog: one habitat per element, the
-    /// starter buildings and one dragon per element standing next to its home.
+    /// Seeds a brand new island: one hatchery on the centre plot, no dragons
+    /// and the tutorial ready to start.  Existing saves never pass through here.
     static func makeStarter(catalog: GameCatalog, now: Date = .now) -> IslandSaveState {
-        var placements: [PlacedBuilding] = []
-        var habitatIDs: [ElementType: UUID] = [:]
-
-        for item in catalog.starterLayout {
-            let id = UUID()
-            let element = item.kind == .habitat ? catalog.habitat(item.definitionID)?.element : nil
-            placements.append(
-                PlacedBuilding(
-                    id: id,
-                    definitionID: item.definitionID,
-                    kind: item.kind,
-                    tileX: item.tileX,
-                    tileY: item.tileY,
-                    level: 1,
-                    element: element,
-                    placedAt: now
-                )
+        let placements = catalog.starterLayout.map { item in
+            PlacedBuilding(
+                id: UUID(),
+                definitionID: item.definitionID,
+                kind: item.kind,
+                tileX: item.tileX,
+                tileY: item.tileY,
+                level: 1,
+                element: item.kind == .habitat ? catalog.habitat(item.definitionID)?.element : nil,
+                placedAt: now
             )
-            if let element {
-                habitatIDs[element] = id
-            }
+        }
+
+        var habitatIDs: [ElementType: UUID] = [:]
+        for placed in placements {
+            if let element = placed.element { habitatIDs[element] = placed.id }
         }
 
         let dragons = catalog.starterDragons.compactMap { starter -> OwnedDragon? in
@@ -46,18 +41,17 @@ enum SaveStateFactory {
         return IslandSaveState(
             schemaVersion: GameConfig.saveSchemaVersion,
             playerName: "Keeper",
-            islandLevel: max(1, dragons.map(\.level).max() ?? 1),
-            resources: .starter,
+            islandLevel: 1,
+            resources: catalog.startingResources.resourceState,
             ownedDragons: dragons,
             placedBuildings: placements,
-            selectedDragonID: dragons.first?.id,
+            selectedDragonID: nil,
             lastSavedAt: now,
             lastSeenAt: now,
             lastCollectionAt: now,
             unlockedElements: catalog.elementOrder,
             didCompleteTutorial: false,
-            breedingSessions: nil,
-            eggs: nil
+            tutorialStepID: catalog.tutorialSteps.first?.id
         )
     }
 }

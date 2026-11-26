@@ -463,48 +463,125 @@
   ],
   "starterLayout": [
     {
-      "kind": "habitat",
-      "definitionID": "habitat_fire",
-      "tileX": 3,
-      "tileY": 2
-    },
-    {
-      "kind": "habitat",
-      "definitionID": "habitat_plant",
-      "tileX": 1,
-      "tileY": 3
-    },
-    {
-      "kind": "farm",
-      "definitionID": "food_farm",
-      "tileX": 5,
-      "tileY": 4
-    },
-    {
       "kind": "building",
       "definitionID": "hatchery",
-      "tileX": 2,
-      "tileY": 5
-    },
-    {
-      "kind": "building",
-      "definitionID": "breeding_corral",
-      "tileX": 6,
-      "tileY": 2
+      "tileX": 3,
+      "tileY": 3
     }
   ],
-  "starterDragons": [
+  "starterDragons": [],
+  "startingResources": {
+    "gold": 1500,
+    "food": 400,
+    "gems": 25
+  },
+  "shopEggs": [
     {
-      "definitionID": "blaze",
-      "level": 2,
-      "tileX": 3,
-      "tileY": 2
+      "element": "fire",
+      "dragonID": "blaze",
+      "cost": 150,
+      "unlockLevel": 1,
+      "hatchSeconds": 10
     },
     {
-      "definitionID": "fern",
-      "level": 1,
-      "tileX": 1,
-      "tileY": 3
+      "element": "water",
+      "dragonID": "tide",
+      "cost": 200,
+      "unlockLevel": 1,
+      "hatchSeconds": 300
+    },
+    {
+      "element": "earth",
+      "dragonID": "pebble",
+      "cost": 200,
+      "unlockLevel": 1,
+      "hatchSeconds": 300
+    },
+    {
+      "element": "air",
+      "dragonID": "breeze",
+      "cost": 220,
+      "unlockLevel": 1,
+      "hatchSeconds": 360
+    },
+    {
+      "element": "lightning",
+      "dragonID": "spark",
+      "cost": 260,
+      "unlockLevel": 2,
+      "hatchSeconds": 420
+    },
+    {
+      "element": "plant",
+      "dragonID": "fern",
+      "cost": 240,
+      "unlockLevel": 1,
+      "hatchSeconds": 360
+    },
+    {
+      "element": "ice",
+      "dragonID": "frost",
+      "cost": 300,
+      "unlockLevel": 2,
+      "hatchSeconds": 480
+    },
+    {
+      "element": "light",
+      "dragonID": "gleam",
+      "cost": 340,
+      "unlockLevel": 3,
+      "hatchSeconds": 540
+    },
+    {
+      "element": "metal",
+      "dragonID": "rivet",
+      "cost": 360,
+      "unlockLevel": 4,
+      "hatchSeconds": 600
+    },
+    {
+      "element": "star",
+      "dragonID": "twinkle",
+      "cost": 400,
+      "unlockLevel": 5,
+      "hatchSeconds": 600
+    }
+  ],
+  "tutorialSteps": [
+    {
+      "id": "open_shop",
+      "text": "Open the Shop",
+      "targetID": "shop"
+    },
+    {
+      "id": "buy_habitat",
+      "text": "Buy a Fire Habitat and place it",
+      "targetID": "habitat_fire"
+    },
+    {
+      "id": "buy_egg",
+      "text": "Buy a Fire Egg",
+      "targetID": "egg_fire"
+    },
+    {
+      "id": "hatch_egg",
+      "text": "Hatch your egg",
+      "targetID": "hatchery"
+    },
+    {
+      "id": "place_dragon",
+      "text": "Place your dragon",
+      "targetID": "habitat_fire"
+    },
+    {
+      "id": "build_farm",
+      "text": "Build a Farm",
+      "targetID": "food_farm"
+    },
+    {
+      "id": "feed_dragon",
+      "text": "Feed your dragon",
+      "targetID": "feed"
     }
   ]
 }

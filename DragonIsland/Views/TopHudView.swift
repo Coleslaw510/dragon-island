@@ -1,9 +1,12 @@
 import SwiftUI
 
-/// Minimal resource bar.  Breeding, hatching and the dragon book open calm
-/// sheets; Battle opens the full-screen arena.
+/// Minimal resource bar.  Breed, Hatch, Battle and Book carry short text
+/// labels under their icons.  Battle with no dragons shows a calm message
+/// instead of opening an empty arena.
 struct TopHudView: View {
     @ObservedObject var store: GameStateStore
+    var onNotice: (String) -> Void = { _ in }
+
     @State private var sheet: HudSheet?
     @State private var showsBattle = false
 
@@ -52,23 +55,32 @@ struct TopHudView: View {
     }
 
     private func actionButton(_ action: HudAction) -> some View {
-        let enabled = action.isEnabled(hasDragons: !store.state.ownedDragons.isEmpty)
+        let hasDragons = !store.state.ownedDragons.isEmpty
+        let enabled = action.isEnabled(hasDragons: hasDragons)
         return Button {
-            if action == .battle {
+            if !enabled {
+                onNotice("Need a dragon")
+            } else if action == .battle {
                 showsBattle = true
             } else {
                 sheet = action.sheet
             }
         } label: {
-            Image(action.icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 22, height: 22)
+            VStack(spacing: 2) {
+                Image(action.icon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 22, height: 22)
+                Text(action.shortTitle)
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.85))
+                    .lineLimit(1)
+            }
+            .tutorialGlow(action == .hatch && store.tutorialTargetID == "hatchery")
         }
-        .buttonStyle(HudButtonStyle())
-        .disabled(!enabled)
-        .opacity(enabled ? 1 : 0.4)
-        .accessibilityLabel(Text(action.accessibility))
+        .buttonStyle(HudButtonStyle(tall: true))
+        .opacity(enabled ? 1 : 0.55)
+        .accessibilityLabel(Text(action.title))
     }
 }
 
@@ -98,11 +110,15 @@ private struct ResourceChip: View {
 }
 
 private struct HudButtonStyle: ButtonStyle {
+    var tall = false
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(width: 40, height: 40)
-            .background(.ultraThinMaterial, in: Circle())
-            .overlay(Circle().strokeBorder(.white.opacity(0.14), lineWidth: 1))
+            .frame(width: tall ? 52 : 40, height: tall ? 46 : 40)
+            .background(.ultraThinMaterial,
+                        in: RoundedRectangle(cornerRadius: tall ? 13 : 20))
+            .overlay(RoundedRectangle(cornerRadius: tall ? 13 : 20)
+                .strokeBorder(.white.opacity(0.14), lineWidth: 1))
             .opacity(configuration.isPressed ? 0.65 : 1)
     }
 }
@@ -136,6 +152,15 @@ private enum HudAction: String, CaseIterable, Identifiable, Equatable {
         }
     }
 
+    var shortTitle: String {
+        switch self {
+        case .breed: return "Breed"
+        case .hatch: return "Hatch"
+        case .battle: return "Battle"
+        case .codex: return "Book"
+        }
+    }
+
     var sheet: HudSheet? {
         switch self {
         case .breed: return .breeding
@@ -149,6 +174,4 @@ private enum HudAction: String, CaseIterable, Identifiable, Equatable {
         if case .battle = self { return hasDragons }
         return true
     }
-
-    var accessibility: String { title }
 }

@@ -5,6 +5,13 @@ import Foundation
 /// Saves are small JSON documents in Application Support, written atomically.
 final class GameStateStore: ObservableObject {
     @Published internal(set) var state: IslandSaveState
+    /// Bumped when the whole island content is replaced, for example after a
+    /// reset.  Views watch it to rebuild SpriteKit nodes.
+    @Published private(set) var worldRevision = 0
+    /// Transient shop placement mode.  Not saved; a relaunch cancels it.
+    @Published internal(set) var pendingPlacement: PendingPlacement?
+    /// Incremented when a nested view asks the island host to open the shop.
+    @Published internal(set) var shopOpenRequest = 0
 
     let catalog: GameCatalog
     let rules: BreedingRules
@@ -45,6 +52,7 @@ final class GameStateStore: ObservableObject {
         IslandEconomy.reconcileAssignments(&state, catalog: catalog, now: .now)
         syncIslandLevel()
         evaluateAchievements()
+        reconcileTutorialProgress()
         beginSession()
     }
 
@@ -131,6 +139,14 @@ final class GameStateStore: ObservableObject {
         state.placedBuildings.append(placed)
         if kind == .habitat {
             IslandEconomy.reconcileAssignments(&state, catalog: catalog, now: now)
+            if tutorialTargetMatches(definitionID) {
+                notifyTutorialEvent("buy_habitat")
+                if state.ownedDragons.contains(where: { $0.assignedHabitatID != nil }) {
+                    notifyTutorialEvent("place_dragon")
+                }
+            }
+        } else if kind == .farm, tutorialTargetMatches(definitionID) {
+            notifyTutorialEvent("build_farm")
         }
         save()
         return .success(placed)
@@ -216,6 +232,18 @@ final class GameStateStore: ObservableObject {
 
     func selectDragon(_ id: UUID?) {
         state.selectedDragonID = id
+        save()
+    }
+
+    // MARK: - New game
+
+    /// Replaces the save with a fresh island and restarts the tutorial.  The
+    /// caller asks for confirmation first because this cannot be undone.
+    func resetProgress(now: Date = .now) {
+        state = SaveStateFactory.makeStarter(catalog: catalog, now: now)
+        pendingPlacement = nil
+        syncIslandLevel()
+        worldRevision += 1
         save()
     }
 }

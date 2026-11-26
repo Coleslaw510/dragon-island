@@ -1,12 +1,13 @@
 import SwiftUI
 
-/// Hatchery slots with date-driven incubation timers.  Hatching adds a real
-/// OwnedDragon and assigns it to a matching habitat when space allows.
+/// Hatchery slots with date-driven incubation timers.  Hatching saves the
+/// dragon unassigned and opens the habitat picker.
 struct HatcheryView: View {
     @ObservedObject var store: GameStateStore
     @Environment(\.dismiss) private var dismiss
 
     @State private var notice: String?
+    @State private var freshDragon: OwnedDragon?
 
     private var hatcheries: [PlacedBuilding] { store.hatcheryBuildings }
 
@@ -39,6 +40,12 @@ struct HatcheryView: View {
                     Button("Done") { dismiss() }
                 }
             }
+        }
+        .sheet(item: $freshDragon) { dragon in
+            DragonPlacementSheet(store: store, dragon: dragon, onOpenShop: {
+                store.requestShop()
+                dismiss()
+            })
         }
     }
 
@@ -129,7 +136,8 @@ struct HatcheryView: View {
     private func hatch(_ egg: DragonEgg) {
         switch store.hatchEgg(id: egg.id) {
         case .success(let dragon):
-            notice = "\(dragon.nickname) hatched and joined the island."
+            freshDragon = dragon
+            notice = "\(dragon.nickname) hatched. Pick a habitat."
         case .failure(let failure):
             notice = failure.message
         }

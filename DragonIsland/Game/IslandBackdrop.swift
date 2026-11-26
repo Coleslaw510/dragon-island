@@ -3,6 +3,8 @@ import UIKit
 
 /// Static island art and overlay nodes that the scene places once.
 enum IslandBackdrop {
+    /// One fixed frame.  The island never animates or drifts; only the dragons
+    /// on top keep their idle loop.
     static func makeIsland(loader: SpriteSheetLoader, grid: IslandGrid) -> SKNode {
         let frames = loader.frames(forGroup: "starter_island")
         let island: SKSpriteNode
@@ -11,9 +13,6 @@ enum IslandBackdrop {
             let ratio = first.size().height / max(first.size().width, 1)
             island = SKSpriteNode(texture: first)
             island.size = CGSize(width: width, height: width * ratio)
-            if frames.count > 1 {
-                island.run(.repeatForever(.animate(with: frames, timePerFrame: 0.3)), withKey: "island")
-            }
         } else {
             island = SKSpriteNode(texture: loader.placeholderTexture(
                 size: CGSize(width: 900, height: 760), color: .systemTeal))

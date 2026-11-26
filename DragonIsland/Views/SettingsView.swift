@@ -7,6 +7,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showsAchievements = false
+    @State private var showsResetConfirm = false
 
     private var completedCount: Int {
         store.achievementDefinitions.filter { store.isAchievementComplete($0.id) }.count
@@ -22,6 +23,7 @@ struct SettingsView: View {
                     achievementsRow
                     plotRow
                     saveRow
+                    resetRow
                 }
                 .padding(20)
             }
@@ -36,6 +38,16 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showsAchievements) {
             AchievementsView(store: store)
+        }
+        .confirmationDialog("Reset all progress?", isPresented: $showsResetConfirm,
+                            titleVisibility: .visible) {
+            Button("Reset progress", role: .destructive) {
+                store.resetProgress()
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This deletes your island, dragons and gold, then starts the tutorial again.")
         }
     }
 
@@ -133,6 +145,32 @@ struct SettingsView: View {
             .foregroundStyle(.white)
             .padding(12)
             .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 14))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var resetRow: some View {
+        Button(role: .destructive) {
+            showsResetConfirm = true
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "arrow.counterclockwise.circle.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .frame(width: 26, height: 26)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Reset progress")
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    Text("Start a new island and the tutorial.")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                Spacer()
+            }
+            .foregroundStyle(.red)
+            .padding(12)
+            .background(.red.opacity(0.12), in: RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14)
+                .strokeBorder(.red.opacity(0.35), lineWidth: 1))
         }
         .buttonStyle(.plain)
     }

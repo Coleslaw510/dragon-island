@@ -1,96 +1,105 @@
 import Combine
 import Foundation
 
-/// Bridges SpriteKit tile taps to the save store and publishes what the SwiftUI
-/// build panel should show.  Kept out of `IslandScene` so the scene stays small.
+/// Bridges SpriteKit tile taps to the save store.  Tapping a placed habitat,
+/// farm or building selects it for the info panel; tapping empty ground does
+/// nothing unless a shop placement or move is waiting for a plot.
 final class IslandInteractionModel: ObservableObject {
     let store: GameStateStore
 
-    @Published private(set) var selectedTile: TileCoordinate
+    @Published private(set) var selectedPlacementID: UUID?
     @Published private(set) var movingPlacementID: UUID?
     @Published private(set) var statusMessage: String?
+    @Published private(set) var hatchedDragon: OwnedDragon?
 
     var onWorldChanged: (() -> Void)?
 
     init(store: GameStateStore) {
         self.store = store
-        self.selectedTile = GameConfig.initialSelection
     }
 
     var selectedPlacement: PlacedBuilding? {
-        IslandEconomy.placement(at: selectedTile, state: store.state)
+        guard let id = selectedPlacementID else { return nil }
+        return store.state.placedBuildings.first { $0.id == id }
     }
 
     var isMoving: Bool { movingPlacementID != nil }
+    var isPlacing: Bool { store.pendingPlacement != nil }
 
-    func syncSelection(_ tile: TileCoordinate) {
-        selectedTile = tile
-    }
+    func handleTap(_ tile: TileCoordinate) {
+        if store.pendingPlacement != nil {
+            if let failure = store.placePending(at: tile) {
+                statusMessage = failure.message
+            } else {
+                statusMessage = "Placed."
+                selectedPlacementID = nil
+                onWorldChanged?()
+            }
+            return
+        }
 
-    /// Called for every tile tap.  A pending move consumes the tap first, then
-    /// tapping a ready habitat or farm collects its yield.
-    func updateSelection(_ tile: TileCoordinate) {
-        selectedTile = tile
-        statusMessage = nil
         if let movingPlacementID {
             finishMove(id: movingPlacementID, to: tile)
             return
         }
-        collectIfReady(at: tile)
+
+        if let placed = IslandEconomy.placement(at: tile, state: store.state) {
+            selectedPlacementID = placed.id
+            statusMessage = nil
+        } else {
+            dismissSelection()
+        }
     }
 
-    // MARK: - Actions
+    func dismissSelection() {
+        selectedPlacementID = nil
+        statusMessage = nil
+    }
+
+    // MARK: - Selection actions
 
     func collectSelected() {
-        collectIfReady(at: selectedTile)
+        guard let placed = selectedPlacement else { return }
+        switch placed.kind {
+        case .habitat:
+            let gold = store.collectHabitat(id: placed.id)
+            guard gold > 0 else { statusMessage = "Nothing to collect yet."; return }
+            store.playSound(.collect)
+            statusMessage = "Collected \(gold) gold."
+        case .farm:
+            let food = store.harvestFarm(id: placed.id)
+            guard food > 0 else { statusMessage = "Crops are still growing."; return }
+            store.playSound(.collect)
+            statusMessage = "Harvested \(food) food."
+        case .building:
+            hatch(in: placed)
+            return
+        }
+        onWorldChanged?()
     }
 
-    func plantSelectedFarm() {
+    func plantSelected() {
         guard let placed = selectedPlacement, placed.kind == .farm else { return }
         if store.plantFarm(id: placed.id) {
             statusMessage = "Planted. Come back when the crops are ready."
             onWorldChanged?()
         } else {
-            statusMessage = placed.plantedAt == nil ? "Not enough gold to plant." : "Crops are already growing."
+            statusMessage = placed.plantedAt == nil ? "Not enough gold to plant."
+                                                    : "Crops are already growing."
         }
     }
 
-    func startMoving() {
-        guard let placed = selectedPlacement else { return }
-        movingPlacementID = placed.id
-        statusMessage = "Tap an empty plot to move \(displayName(for: placed))."
-    }
-
-    func cancelMove() {
-        movingPlacementID = nil
-        statusMessage = nil
-    }
-
-    @discardableResult
-    func build(kind: PlacementKind, definitionID: String) -> Bool {
-        switch store.buildPlacement(kind: kind, definitionID: definitionID, tile: selectedTile) {
-        case .success(let placed):
-            statusMessage = "Built \(displayName(for: placed))."
+    func feedSelected() {
+        guard let placed = selectedPlacement, placed.kind == .habitat,
+              let dragon = firstOccupant(in: placed) else { return }
+        if let outcome = store.feedDragon(id: dragon.id) {
+            statusMessage = outcome.leveledUp
+                ? "\(outcome.name) reached level \(outcome.level)."
+                : "\(outcome.name) ate and feels stronger."
             onWorldChanged?()
-            return true
-        case .failure(let failure):
-            statusMessage = failure.message
-            return false
+        } else {
+            statusMessage = "Not enough food, or max level."
         }
-    }
-
-    func canBuild(kind: PlacementKind, definitionID: String) -> Bool {
-        guard selectedPlacement == nil,
-              IslandEconomy.isUnlocked(kind: kind, definitionID: definitionID,
-                                      catalog: store.catalog,
-                                      islandLevel: store.state.islandLevel),
-              let cost = IslandEconomy.cost(kind: kind, definitionID: definitionID, catalog: store.catalog)
-        else { return false }
-        return store.state.resources.gold >= cost
-    }
-
-    func canHatch(_ placed: PlacedBuilding) -> Bool {
-        placed.kind == .building && store.hasReadyEgg(in: placed.id)
     }
 
     func hatchSelected() {
@@ -98,11 +107,39 @@ final class IslandInteractionModel: ObservableObject {
         hatch(in: placed)
     }
 
+    func beginMoving() {
+        guard let placed = selectedPlacement else { return }
+        movingPlacementID = placed.id
+        selectedPlacementID = nil
+        statusMessage = nil
+    }
+
+    func cancelMove() {
+        movingPlacementID = nil
+        statusMessage = nil
+    }
+
+    func clearHatchedDragon() {
+        hatchedDragon = nil
+    }
+
+    // MARK: - Eligibility for the info panel
+
     func canPlant(_ placed: PlacedBuilding) -> Bool {
         guard placed.kind == .farm, placed.plantedAt == nil,
               let definition = store.catalog.building(placed.definitionID),
               definition.isFarm else { return false }
         return store.state.resources.gold >= (definition.plantCost ?? 0)
+    }
+
+    func canFeed(_ placed: PlacedBuilding) -> Bool {
+        guard let dragon = firstOccupant(in: placed) else { return false }
+        let config = store.rules.leveling
+        return dragon.level < config.maxLevel && store.state.resources.food >= config.foodPerFeed
+    }
+
+    func firstOccupant(in placed: PlacedBuilding) -> OwnedDragon? {
+        IslandEconomy.occupants(of: placed, state: store.state, catalog: store.catalog).first
     }
 
     func displayName(for placed: PlacedBuilding) -> String {
@@ -116,29 +153,10 @@ final class IslandInteractionModel: ObservableObject {
 
     // MARK: - Private
 
-    private func collectIfReady(at tile: TileCoordinate) {
-        guard let placed = IslandEconomy.placement(at: tile, state: store.state) else { return }
-        switch placed.kind {
-        case .habitat:
-            let gold = store.collectHabitat(id: placed.id)
-            guard gold > 0 else { return }
-            store.playSound(.collect)
-            statusMessage = "Collected \(gold) gold."
-        case .farm:
-            let food = store.harvestFarm(id: placed.id)
-            guard food > 0 else { return }
-            store.playSound(.collect)
-            statusMessage = "Harvested \(food) food."
-        case .building:
-            hatch(in: placed)
-            return
-        }
-        onWorldChanged?()
-    }
-
     private func hatch(in placed: PlacedBuilding) {
         switch store.hatchFirstReadyEgg(in: placed.id) {
         case .success(let dragon):
+            hatchedDragon = dragon
             statusMessage = "\(dragon.nickname) hatched."
             onWorldChanged?()
         case .failure(.noEgg):

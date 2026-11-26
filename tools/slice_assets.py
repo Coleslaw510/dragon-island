@@ -705,13 +705,16 @@ def build_catalog(manifest: dict) -> dict:
     return {
         "schemaVersion": 1,
         "economy": seed["economy"],
+        "startingResources": seed["startingResources"],
         "elementOrder": order,
         "elements": elements,
         "dragons": dragons,
         "habitats": habitats,
         "buildings": seed["buildings"],
+        "shopEggs": seed["shopEggs"],
         "starterLayout": seed["starterLayout"],
         "starterDragons": seed["starterDragons"],
+        "tutorialSteps": seed["tutorialSteps"],
     }
 
 

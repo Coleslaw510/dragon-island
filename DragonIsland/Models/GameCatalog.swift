@@ -7,29 +7,63 @@ struct EconomySettings: Codable, Hashable, Sendable {
     static let empty = EconomySettings(habitatGoldBubbleFraction: 0.1)
 }
 
+/// Resources a brand new save starts with.  Kept in JSON so balance passes do
+/// not need a Swift change.
+struct StartingResources: Codable, Hashable, Sendable {
+    let gold: Int
+    let food: Int
+    let gems: Int
+
+    var resourceState: ResourceState { ResourceState(gold: gold, food: food, gems: gems, xp: 0) }
+}
+
+/// Base element egg sold in the shop.  `hatchSeconds` is the incubation time.
+struct ShopEggDefinition: Codable, Identifiable, Hashable, Sendable {
+    let element: ElementType
+    let dragonID: String
+    let cost: Int
+    let unlockLevel: Int
+    let hatchSeconds: Int
+
+    var id: String { dragonID }
+}
+
+/// One guided tutorial step.  `targetID` names the control to glow.
+struct TutorialStep: Codable, Identifiable, Hashable, Sendable {
+    let id: String
+    let text: String
+    let targetID: String
+}
+
 /// Root of `starter_catalog.json`.  All gameplay definitions live in that file,
 /// so Swift stays free of hard-coded element and dragon tables.
 struct GameCatalog: Codable, Sendable {
     let schemaVersion: Int
     let economy: EconomySettings
+    let startingResources: StartingResources
     let elementOrder: [ElementType]
     let elements: [ElementDefinition]
     let dragons: [DragonDefinition]
     let habitats: [HabitatDefinition]
     let buildings: [BuildingDefinition]
+    let shopEggs: [ShopEggDefinition]
     let starterLayout: [StarterPlacement]
     let starterDragons: [StarterDragon]
+    let tutorialSteps: [TutorialStep]
 
     static let empty = GameCatalog(
         schemaVersion: 1,
         economy: .empty,
+        startingResources: StartingResources(gold: 0, food: 0, gems: 0),
         elementOrder: [],
         elements: [],
         dragons: [],
         habitats: [],
         buildings: [],
+        shopEggs: [],
         starterLayout: [],
-        starterDragons: []
+        starterDragons: [],
+        tutorialSteps: []
     )
 
     private var dragonIndex: [String: DragonDefinition] {

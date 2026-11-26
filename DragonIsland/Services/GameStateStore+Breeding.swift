@@ -176,7 +176,7 @@ extension GameStateStore {
         recordHatchedDragon()
         playSound(.hatch)
         state.selectedDragonID = dragon.id
-        IslandEconomy.reconcileAssignments(&state, catalog: catalog, now: now)
+        notifyTutorialEvent("hatch_egg")
         syncIslandLevel()
         save()
         return .success(dragon)
@@ -208,6 +208,7 @@ extension GameStateStore {
         state.resources.food -= config.foodPerFeed
         state.ownedDragons[index].level = result.level
         state.ownedDragons[index].experience = result.experience
+        notifyTutorialEvent("feed_dragon")
         syncIslandLevel()
         save()
         return FeedOutcome(
