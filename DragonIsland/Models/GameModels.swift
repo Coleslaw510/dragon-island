@@ -23,7 +23,7 @@ struct DragonDefinition: Codable, Identifiable, Hashable, Sendable {
     let baseAttack: Int
     let baseDefense: Int
     let baseSpeed: Int
-    let unlockAchievementID: String? = nil
+    let unlockAchievementID: String?
 }
 
 /// A dragon the player owns.  Definition data stays in JSON; this record only

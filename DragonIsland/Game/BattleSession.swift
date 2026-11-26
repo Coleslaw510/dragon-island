@@ -57,13 +57,14 @@ final class BattleSession: ObservableObject {
         guard !roster.isEmpty else { return }
 
         playerTeam = roster
-        let battleIndex = store.recordBattleStarted()
+        let battleIndex = store.nextBattleIndex
         enemyTeam = BattleEngine.makeEnemyTeam(catalog: store.catalog,
                                                rules: store.battleRules,
                                                playerTeam: roster,
                                                battleIndex: battleIndex,
                                                availableIDs: store.availableDragonIDs)
         guard !enemyTeam.isEmpty else { return }
+        store.recordBattleStarted()
 
         phase = .fighting
         log = ["A wild team blocks the arena."]
