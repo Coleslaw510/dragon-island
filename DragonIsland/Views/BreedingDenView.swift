@@ -114,7 +114,8 @@ struct BreedingDenView: View {
                 ForEach(store.state.ownedDragons) { dragon in
                     BreedingParentCard(
                         dragon: dragon,
-                        definition: store.catalog.dragon(dragon.definitionID),
+                        element: element(for: dragon),
+                        badgeTexture: badge(for: element(for: dragon)),
                         selected: parentIDs.contains(dragon.id)
                     ) {
                         toggle(dragon.id)
@@ -200,5 +201,13 @@ struct BreedingDenView: View {
 
     private func parentName(_ id: UUID) -> String {
         store.state.ownedDragons.first { $0.id == id }?.nickname ?? "Dragon"
+    }
+
+    private func element(for dragon: OwnedDragon) -> ElementType {
+        store.catalog.dragon(dragon.definitionID)?.element ?? .fire
+    }
+
+    private func badge(for element: ElementType) -> String {
+        store.catalog.element(element)?.badgeTexture ?? "badge_\(element.rawValue)"
     }
 }

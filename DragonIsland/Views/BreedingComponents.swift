@@ -3,15 +3,15 @@ import SwiftUI
 /// One selectable parent dragon in the breeding sheet.
 struct BreedingParentCard: View {
     let dragon: OwnedDragon
-    let definition: DragonDefinition?
+    let element: ElementType
+    let badgeTexture: String
     let selected: Bool
     let action: () -> Void
 
     var body: some View {
-        let element = definition?.element ?? .fire
         Button(action: action) {
             HStack(spacing: 8) {
-                Image(element.badgeTexture)
+                Image(badgeTexture)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 26, height: 26)
