@@ -174,7 +174,16 @@ def strip_grid_lines(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
     protected = solid.copy()
     protected[rows, :] = False
     protected = ndi.binary_dilation(protected, iterations=2)
-    out[rows[:, None] & ~protected] = 0.0
+
+    # A wide band can defeat the dilation above, so test each candidate row
+    # directly: artwork just above and below the same column means the band
+    # crosses a sprite and every pixel in that band must survive.
+    crossing = np.zeros_like(solid)
+    for start, stop in axis_runs(rows, len(rows), expand=0):
+        above = solid[max(0, start - 5):start].any(axis=0)
+        below = solid[stop:min(len(rows), stop + 5)].any(axis=0)
+        crossing[start:stop] = (above & below)[None, :]
+    out[rows[:, None] & ~protected & ~crossing] = 0.0
     return out
 
 
@@ -183,9 +192,75 @@ def strip_dragon_labels(rgba: np.ndarray, alpha: np.ndarray) -> None:
     rows = detect_rows(alpha)
     if not rows:
         return
-    gaps = [(0, min(alpha.shape[0], rows[0][0] + 12))]
-    gaps += [(rows[i][1] + 1, rows[i + 1][0]) for i in range(len(rows) - 1)]
-    for y0, y1 in gaps:
+    mask = alpha > 0.35
+    labels, count = ndi.label(mask)
+    if count == 0:
+        return
+    sizes = ndi.sum(mask, labels, range(1, count + 1))
+
+    def label_band(ys) -> int | None:
+        """Gap whose text row this component belongs to, if any."""
+        for index, (row_top, _) in enumerate(rows):
+            gap_start = 0 if index == 0 else rows[index - 1][1] + 1
+            if ys.start >= gap_start - 2 and ys.stop <= row_top + 9:
+                return index
+        return None
+
+    # Label whole components so glyphs that dip into a row are removed in one
+    # piece, while large artwork stays merged and is skipped by the area test.
+    for index, sl in enumerate(ndi.find_objects(labels)):
+        ys, xs = sl
+        area = int(sizes[index])
+        height = ys.stop - ys.start
+        if area < 30 or height < 7 or area >= 2500 or height >= 80:
+            continue
+        band = label_band(ys)
+        if band is None:
+            continue
+        if band == 0:
+            # Labels that dip into the first row stay left of the artwork.
+            margin = 115 if ys.stop > rows[0][0] else 140
+            if xs.start >= margin and ys.stop > rows[0][0] - 4:
+                continue
+        elif xs.start >= 140:
+            continue
+        core = labels[ys, xs] == index + 1
+        pixels = rgba[ys, xs][core].astype(np.float32)
+        high = pixels.max(axis=1)
+        saturation = ((high - pixels.min(axis=1)) / np.maximum(high, 1.0)).mean()
+        if saturation >= 0.55 or high.mean() >= 180:
+            continue
+        height, width = mask.shape
+        py0, py1 = max(0, ys.start - 3), min(height, ys.stop + 3)
+        px0, px1 = max(0, xs.start - 3), min(width, xs.stop + 3)
+        patch_core = labels[py0:py1, px0:px1] == index + 1
+        patch_alpha = alpha[py0:py1, px0:px1]
+        patch_color = rgba[py0:py1, px0:px1]
+        region = patch_core | (ndi.binary_dilation(patch_core, iterations=4) & (patch_alpha < 0.5))
+        patch_alpha[region] = 0.0
+        patch_color[region] = 0
+
+
+def strip_caption_labels(rgba: np.ndarray, alpha: np.ndarray, min_height: int = 80,
+                         art_area: int = 15000, max_area: int = 2500) -> None:
+    """Clear sheet titles printed in the space above each row of island art."""
+    rows = detect_rows(alpha, min_height)
+    if not rows:
+        return
+    mask = alpha > 0.35
+    labels, count = ndi.label(mask)
+    if count == 0:
+        return
+    sizes = ndi.sum(mask, labels, range(1, count + 1))
+    slices = ndi.find_objects(labels)
+    tops = []
+    for y0, y1 in rows:
+        art = [sl[0].start for i, sl in enumerate(slices)
+               if sizes[i] >= art_area and sl[0].stop > y0 and sl[0].start < y1]
+        tops.append(min(art) if art else y0)
+    regions = [(0, tops[0])]
+    regions += [(rows[i][1] + 1, tops[i + 1]) for i in range(len(rows) - 1)]
+    for y0, y1 in regions:
         if y1 <= y0:
             continue
         labels, _ = ndi.label(alpha[y0:y1] > 0.35)
@@ -193,23 +268,23 @@ def strip_dragon_labels(rgba: np.ndarray, alpha: np.ndarray) -> None:
             ys, xs = sl
             area = int((labels[ys, xs] == index + 1).sum())
             height = ys.stop - ys.start
-            if area < 30 or height < 7 or area >= 2500 or height >= 80:
+            if area < 25 or area > max_area or height > 60:
                 continue
-            if y0 == 0:
-                # Labels that dip into the first row stay left of the artwork.
-                margin = 115 if y0 + ys.stop > rows[0][0] else 140
-                if xs.start >= margin and y0 + ys.stop > rows[0][0] - 4:
-                    continue
-            elif xs.start >= 140:
-                continue
-            pixels = rgba[y0:y1][labels == index + 1].astype(np.float32)
+            core = labels[ys, xs] == index + 1
+            pixels = rgba[y0 + ys.start:y0 + ys.stop, xs.start:xs.stop][core].astype(np.float32)
             high = pixels.max(axis=1)
             saturation = ((high - pixels.min(axis=1)) / np.maximum(high, 1.0)).mean()
             if saturation >= 0.55 or high.mean() >= 180:
                 continue
-            region = labels[ys, xs] == index + 1
-            alpha[y0 + ys.start:y0 + ys.stop, xs.start:xs.stop][region] = 0.0
-            rgba[y0 + ys.start:y0 + ys.stop, xs.start:xs.stop][region] = 0
+            height, width = labels.shape
+            py0, py1 = max(0, ys.start - 4), min(height, ys.stop + 4)
+            px0, px1 = max(0, xs.start - 4), min(width, xs.stop + 4)
+            patch_core = labels[py0:py1, px0:px1] == index + 1
+            patch_alpha = alpha[y0 + py0:y0 + py1, px0:px1]
+            patch_color = rgba[y0 + py0:y0 + py1, px0:px1]
+            region = patch_core | (ndi.binary_dilation(patch_core, iterations=6) & (patch_alpha < 0.5))
+            patch_alpha[region] = 0.0
+            patch_color[region] = 0
 
 
 def sheet_matte(asset_root: Path, relative_path: str) -> tuple[np.ndarray, np.ndarray]:
@@ -496,6 +571,7 @@ def export_world(asset_root: Path, manifest: dict) -> dict:
 
     island = world_cfg["starter_island"]
     rgba, alpha = sheet_matte(asset_root, island["file"])
+    strip_caption_labels(rgba, alpha)
     island_frames, _ = slice_animated(
         rgba, alpha, 2, 3, lambda r, c: f"island_starter_{r * 3 + c}", min_row_height=80)
     island_names = save_frames(island_frames, "World")
