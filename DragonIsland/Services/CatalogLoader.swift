@@ -20,6 +20,10 @@ enum CatalogLoader {
         try decode(SpriteManifest.self, named: "sprite_manifest", bundle: bundle)
     }
 
+    static func loadBreedingRules(bundle: Bundle = .main) throws -> BreedingRules {
+        try decode(BreedingRules.self, named: "breeding_rules", bundle: bundle)
+    }
+
     private static func decode<T: Decodable>(_ type: T.Type, named name: String, bundle: Bundle) throws -> T {
         let url = bundle.url(forResource: name, withExtension: "json", subdirectory: "GameData")
             ?? bundle.url(forResource: name, withExtension: "json")

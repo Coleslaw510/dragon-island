@@ -59,6 +59,12 @@ struct IslandHostView: View {
                 showsHint = false
             }
         }
+        .task {
+            while !Task.isCancelled {
+                store.tick()
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 store.beginSession()
@@ -68,6 +74,15 @@ struct IslandHostView: View {
             }
         }
         .onChange(of: store.state.placedBuildings.count) { _, _ in
+            scene.refreshPlacements()
+        }
+        .onChange(of: store.state.ownedDragons) { _, _ in
+            scene.refreshPlacements()
+        }
+        .onChange(of: store.state.eggs) { _, _ in
+            scene.refreshPlacements()
+        }
+        .onChange(of: store.state.breedingSessions) { _, _ in
             scene.refreshPlacements()
         }
     }

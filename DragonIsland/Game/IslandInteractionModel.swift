@@ -81,9 +81,21 @@ final class IslandInteractionModel: ObservableObject {
 
     func canBuild(kind: PlacementKind, definitionID: String) -> Bool {
         guard selectedPlacement == nil,
+              IslandEconomy.isUnlocked(kind: kind, definitionID: definitionID,
+                                      catalog: store.catalog,
+                                      islandLevel: store.state.islandLevel),
               let cost = IslandEconomy.cost(kind: kind, definitionID: definitionID, catalog: store.catalog)
         else { return false }
         return store.state.resources.gold >= cost
+    }
+
+    func canHatch(_ placed: PlacedBuilding) -> Bool {
+        placed.kind == .building && store.hasReadyEgg(in: placed.id)
+    }
+
+    func hatchSelected() {
+        guard let placed = selectedPlacement, placed.kind == .building else { return }
+        hatch(in: placed)
     }
 
     func canPlant(_ placed: PlacedBuilding) -> Bool {
@@ -116,9 +128,22 @@ final class IslandInteractionModel: ObservableObject {
             guard food > 0 else { return }
             statusMessage = "Harvested \(food) food."
         case .building:
+            hatch(in: placed)
             return
         }
         onWorldChanged?()
+    }
+
+    private func hatch(in placed: PlacedBuilding) {
+        switch store.hatchFirstReadyEgg(in: placed.id) {
+        case .success(let dragon):
+            statusMessage = "\(dragon.nickname) hatched."
+            onWorldChanged?()
+        case .failure(.noEgg):
+            return
+        case .failure(let failure):
+            statusMessage = failure.message
+        }
     }
 
     private func finishMove(id: UUID, to tile: TileCoordinate) {

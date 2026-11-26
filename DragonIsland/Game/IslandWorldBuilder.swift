@@ -4,14 +4,15 @@ import SpriteKit
 /// camera and input; this builder is purely about turning records into nodes.
 enum IslandWorldBuilder {
     static func makeNode(state: IslandSaveState, catalog: GameCatalog,
-                         grid: IslandGrid, loader: SpriteSheetLoader,
+                         rules: BreedingRules, grid: IslandGrid, loader: SpriteSheetLoader,
                          now: Date = .now) -> SKNode {
         let root = SKNode()
         root.name = "placements"
 
         for placed in state.placedBuildings.sorted(by: drawOrder) {
             guard let node = makePlacementNode(placed: placed, state: state, catalog: catalog,
-                                               grid: grid, loader: loader, now: now) else { continue }
+                                               rules: rules, grid: grid, loader: loader, now: now)
+            else { continue }
             root.addChild(node)
         }
 
@@ -19,7 +20,10 @@ enum IslandWorldBuilder {
             guard let definition = catalog.dragon(dragon.definitionID) else { continue }
             let frames = loader.frames(forDragon: definition.id, state: .idle)
             guard let first = frames.first else { continue }
-            root.addChild(makeDragonNode(dragon: dragon, frames: frames, first: first, grid: grid))
+            root.addChild(
+                DragonNodeFactory.makeNode(dragon: dragon, frames: frames, first: first,
+                                           grid: grid, rules: rules)
+            )
         }
         return root
     }
@@ -39,8 +43,9 @@ enum IslandWorldBuilder {
     // MARK: - Nodes
 
     private static func makePlacementNode(placed: PlacedBuilding, state: IslandSaveState,
-                                          catalog: GameCatalog, grid: IslandGrid,
-                                          loader: SpriteSheetLoader, now: Date) -> SKNode? {
+                                          catalog: GameCatalog, rules: BreedingRules,
+                                          grid: IslandGrid, loader: SpriteSheetLoader,
+                                          now: Date) -> SKNode? {
         let stage = FarmGrowth.stage(for: placed, catalog: catalog, now: now)
         guard let name = textureName(for: placed, catalog: catalog, stage: stage),
               let texture = loader.texture(named: name) else { return nil }
@@ -64,7 +69,8 @@ enum IslandWorldBuilder {
             scheduleFarm(placed, stage: stage, catalog: catalog, node: node,
                          grid: grid, loader: loader, now: now)
         case .building:
-            break
+            EggOverlay.attach(to: node, placed: placed, state: state, rules: rules,
+                              grid: grid, loader: loader, now: now)
         }
         return node
     }
@@ -72,11 +78,13 @@ enum IslandWorldBuilder {
     private static func scheduleHabitat(_ placed: PlacedBuilding, state: IslandSaveState,
                                         catalog: GameCatalog, node: SKSpriteNode,
                                         grid: IslandGrid, loader: SpriteSheetLoader, now: Date) {
-        guard let status = IslandEconomy.status(for: placed, state: state, catalog: catalog, now: now)
-        else { return }
-        if status.isReady {
+        guard let status = IslandEconomy.status(
+            for: placed, state: state, catalog: catalog, now: now,
+            bubbleFraction: catalog.economy.habitatGoldBubbleFraction
+        ) else { return }
+        if status.showsBubble {
             addIndicator("indicator_gold_coin_bubble", to: node, grid: grid, loader: loader)
-        } else if let delay = status.secondsUntilReady {
+        } else if let delay = status.secondsUntilBubble {
             node.run(.sequence([
                 .wait(forDuration: delay + 0.5),
                 .run { [weak node] in
@@ -141,35 +149,6 @@ enum IslandWorldBuilder {
             .moveBy(x: 0, y: -4, duration: 0.9),
         ])), withKey: "bob")
         node.addChild(sprite)
-    }
-
-    private static func makeDragonNode(dragon: OwnedDragon, frames: [SKTexture], first: SKTexture,
-                                       grid: IslandGrid) -> SKNode {
-        let width = grid.tileWidth * 0.68
-        let height = width * first.size().height / max(first.size().width, 1)
-        let node = SKSpriteNode(texture: first)
-        node.size = CGSize(width: width, height: height)
-        node.anchorPoint = CGPoint(x: 0.5, y: 0.12)
-        node.position = grid.position(for: dragon.tile)
-        node.position.y += grid.tileHeight * 0.16
-        node.zPosition = depth(for: dragon.tile) + 6
-        node.name = dragon.id.uuidString
-
-        // Sheets face right; mirror every second dragon so the island reads
-        // naturally without hand-editing any art.
-        if dragon.tileX % 2 == 1 {
-            node.xScale = -1
-        }
-        if frames.count > 1 {
-            let animate = SKAction.animate(with: frames, timePerFrame: 0.18)
-            node.run(.repeatForever(animate), withKey: "idle")
-        }
-        let bob = SKAction.sequence([
-            .moveBy(x: 0, y: 3, duration: 1.1),
-            .moveBy(x: 0, y: -3, duration: 1.1),
-        ])
-        node.run(.repeatForever(bob), withKey: "bob")
-        return node
     }
 
     private static func shadow(width: CGFloat, height: CGFloat, y: CGFloat) -> SKShapeNode {

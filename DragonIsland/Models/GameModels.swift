@@ -112,6 +112,8 @@ struct IslandSaveState: Codable, Hashable, Sendable {
     var lastCollectionAt: Date
     var unlockedElements: [ElementType]
     var didCompleteTutorial: Bool
+    var breedingSessions: [BreedingSession]? = nil
+    var eggs: [DragonEgg]? = nil
 
     func habitat(for element: ElementType) -> PlacedBuilding? {
         placedBuildings.first { $0.kind == .habitat && $0.element == element }

@@ -1,9 +1,17 @@
 import Foundation
 
+/// Tuning values that belong to the economy rather than a single definition.
+struct EconomySettings: Codable, Hashable, Sendable {
+    let habitatGoldBubbleFraction: Double
+
+    static let empty = EconomySettings(habitatGoldBubbleFraction: 0.1)
+}
+
 /// Root of `starter_catalog.json`.  All gameplay definitions live in that file,
 /// so Swift stays free of hard-coded element and dragon tables.
 struct GameCatalog: Codable, Sendable {
     let schemaVersion: Int
+    let economy: EconomySettings
     let elementOrder: [ElementType]
     let elements: [ElementDefinition]
     let dragons: [DragonDefinition]
@@ -14,6 +22,7 @@ struct GameCatalog: Codable, Sendable {
 
     static let empty = GameCatalog(
         schemaVersion: 1,
+        economy: .empty,
         elementOrder: [],
         elements: [],
         dragons: [],
@@ -79,8 +88,10 @@ struct BuildingDefinition: Codable, Identifiable, Hashable, Sendable {
     let harvestFood: Int?
     let plantCost: Int?
     let sproutFraction: Double?
+    let unlockLevel: Int?
 
     var isFarm: Bool { growSeconds != nil && harvestFood != nil }
+    var requiredLevel: Int { unlockLevel ?? 1 }
 }
 
 struct StarterPlacement: Codable, Hashable, Sendable {

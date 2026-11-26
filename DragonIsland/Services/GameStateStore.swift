@@ -1,25 +1,21 @@
 import Combine
 import Foundation
 
-struct OfflineReport: Equatable, Sendable {
-    let secondsAway: TimeInterval
-    let goldEarned: Int
-}
-
 /// Owns the save file and publishes the single source of truth for the game.
 /// Saves are small JSON documents in Application Support, written atomically.
 final class GameStateStore: ObservableObject {
-    @Published private(set) var state: IslandSaveState
-    @Published private(set) var lastOfflineReport: OfflineReport?
+    @Published internal(set) var state: IslandSaveState
 
     let catalog: GameCatalog
+    let rules: BreedingRules
     private let fileURL: URL
     private let fileManager: FileManager
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
 
-    init(catalog: GameCatalog, fileManager: FileManager = .default) {
+    init(catalog: GameCatalog, rules: BreedingRules = .empty, fileManager: FileManager = .default) {
         self.catalog = catalog
+        self.rules = rules
         self.fileManager = fileManager
 
         let base = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
@@ -41,22 +37,16 @@ final class GameStateStore: ObservableObject {
         Self.normalizePlacements(&loaded, catalog: catalog)
         self.state = loaded
         IslandEconomy.reconcileAssignments(&state, catalog: catalog, now: .now)
+        syncIslandLevel()
         beginSession()
     }
 
     // MARK: - Session hooks
 
-    /// Offline progress hook: occupied habitats bank gold up to their cap while
-    /// the app is closed.  Farm growth needs no catch-up because it is derived
-    /// from `plantedAt` whenever the world is built.
+    /// Pending gold is never collected automatically.  It keeps accruing from
+    /// timestamps until the player taps the habitat.
     func beginSession(now: Date = .now) {
-        let away = now.timeIntervalSince(state.lastSeenAt)
-        if away > 90 {
-            let gold = IslandEconomy.collectOfflineGold(&state, catalog: catalog, now: now)
-            if gold > 0 {
-                lastOfflineReport = OfflineReport(secondsAway: away, goldEarned: gold)
-            }
-        }
+        completeReadyBreedings(now: now)
         state.lastSeenAt = now
         save()
     }
@@ -115,6 +105,9 @@ final class GameStateStore: ObservableObject {
         guard IslandEconomy.definitionExists(kind: kind, definitionID: definitionID, catalog: catalog),
               let cost = IslandEconomy.cost(kind: kind, definitionID: definitionID, catalog: catalog)
         else { return .failure(.unknownDefinition) }
+        guard IslandEconomy.isUnlocked(kind: kind, definitionID: definitionID,
+                                      catalog: catalog, islandLevel: state.islandLevel)
+        else { return .failure(.locked) }
         guard state.resources.gold >= cost else { return .failure(.insufficientGold) }
 
         state.resources.gold -= cost
@@ -154,9 +147,14 @@ final class GameStateStore: ObservableObject {
     @discardableResult
     func collectHabitat(id: UUID, now: Date = .now) -> Int {
         guard let index = state.placedBuildings.firstIndex(where: { $0.id == id }),
-              let status = IslandEconomy.status(for: state.placedBuildings[index], state: state,
-                                                catalog: catalog, now: now),
-              status.isReady else { return 0 }
+              let status = IslandEconomy.status(
+                  for: state.placedBuildings[index],
+                  state: state,
+                  catalog: catalog,
+                  now: now,
+                  bubbleFraction: catalog.economy.habitatGoldBubbleFraction
+              ),
+              status.canCollect else { return 0 }
         state.resources.gold += status.pendingGold
         state.placedBuildings[index].lastCollectedAt = now
         state.lastCollectionAt = now

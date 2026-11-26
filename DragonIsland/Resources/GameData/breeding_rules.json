@@ -1,0 +1,488 @@
+{
+  "schemaVersion": 1,
+  "breeding": {
+    "goldCost": 150,
+    "foodCost": 40,
+    "buildings": {
+      "breeding_corral": {
+        "slots": 1,
+        "seconds": 600
+      },
+      "breeding_den": {
+        "slots": 1,
+        "seconds": 420
+      }
+    },
+    "sameElement": {
+      "fire": {
+        "element": "fire",
+        "dragonID": "blaze"
+      },
+      "water": {
+        "element": "water",
+        "dragonID": "tide"
+      },
+      "earth": {
+        "element": "earth",
+        "dragonID": "pebble"
+      },
+      "air": {
+        "element": "air",
+        "dragonID": "breeze"
+      },
+      "lightning": {
+        "element": "lightning",
+        "dragonID": "spark"
+      },
+      "plant": {
+        "element": "plant",
+        "dragonID": "fern"
+      },
+      "ice": {
+        "element": "ice",
+        "dragonID": "frost"
+      },
+      "light": {
+        "element": "light",
+        "dragonID": "gleam"
+      },
+      "metal": {
+        "element": "metal",
+        "dragonID": "rivet"
+      },
+      "star": {
+        "element": "star",
+        "dragonID": "twinkle"
+      }
+    },
+    "pairs": [
+      {
+        "elements": [
+          "fire",
+          "water"
+        ],
+        "element": "earth",
+        "dragonID": "pebble"
+      },
+      {
+        "elements": [
+          "fire",
+          "earth"
+        ],
+        "element": "air",
+        "dragonID": "breeze"
+      },
+      {
+        "elements": [
+          "fire",
+          "air"
+        ],
+        "element": "lightning",
+        "dragonID": "spark"
+      },
+      {
+        "elements": [
+          "fire",
+          "lightning"
+        ],
+        "element": "plant",
+        "dragonID": "fern"
+      },
+      {
+        "elements": [
+          "fire",
+          "plant"
+        ],
+        "element": "ice",
+        "dragonID": "frost"
+      },
+      {
+        "elements": [
+          "fire",
+          "ice"
+        ],
+        "element": "light",
+        "dragonID": "gleam"
+      },
+      {
+        "elements": [
+          "fire",
+          "light"
+        ],
+        "element": "metal",
+        "dragonID": "rivet"
+      },
+      {
+        "elements": [
+          "fire",
+          "metal"
+        ],
+        "element": "star",
+        "dragonID": "twinkle"
+      },
+      {
+        "elements": [
+          "fire",
+          "star"
+        ],
+        "element": "water",
+        "dragonID": "tide"
+      },
+      {
+        "elements": [
+          "water",
+          "earth"
+        ],
+        "element": "lightning",
+        "dragonID": "spark"
+      },
+      {
+        "elements": [
+          "water",
+          "air"
+        ],
+        "element": "plant",
+        "dragonID": "fern"
+      },
+      {
+        "elements": [
+          "water",
+          "lightning"
+        ],
+        "element": "ice",
+        "dragonID": "frost"
+      },
+      {
+        "elements": [
+          "water",
+          "plant"
+        ],
+        "element": "light",
+        "dragonID": "gleam"
+      },
+      {
+        "elements": [
+          "water",
+          "ice"
+        ],
+        "element": "metal",
+        "dragonID": "rivet"
+      },
+      {
+        "elements": [
+          "water",
+          "light"
+        ],
+        "element": "star",
+        "dragonID": "twinkle"
+      },
+      {
+        "elements": [
+          "water",
+          "metal"
+        ],
+        "element": "fire",
+        "dragonID": "blaze"
+      },
+      {
+        "elements": [
+          "water",
+          "star"
+        ],
+        "element": "earth",
+        "dragonID": "pebble"
+      },
+      {
+        "elements": [
+          "earth",
+          "air"
+        ],
+        "element": "ice",
+        "dragonID": "frost"
+      },
+      {
+        "elements": [
+          "earth",
+          "lightning"
+        ],
+        "element": "light",
+        "dragonID": "gleam"
+      },
+      {
+        "elements": [
+          "earth",
+          "plant"
+        ],
+        "element": "metal",
+        "dragonID": "rivet"
+      },
+      {
+        "elements": [
+          "earth",
+          "ice"
+        ],
+        "element": "star",
+        "dragonID": "twinkle"
+      },
+      {
+        "elements": [
+          "earth",
+          "light"
+        ],
+        "element": "fire",
+        "dragonID": "blaze"
+      },
+      {
+        "elements": [
+          "earth",
+          "metal"
+        ],
+        "element": "water",
+        "dragonID": "tide"
+      },
+      {
+        "elements": [
+          "earth",
+          "star"
+        ],
+        "element": "air",
+        "dragonID": "breeze"
+      },
+      {
+        "elements": [
+          "air",
+          "lightning"
+        ],
+        "element": "metal",
+        "dragonID": "rivet"
+      },
+      {
+        "elements": [
+          "air",
+          "plant"
+        ],
+        "element": "star",
+        "dragonID": "twinkle"
+      },
+      {
+        "elements": [
+          "air",
+          "ice"
+        ],
+        "element": "fire",
+        "dragonID": "blaze"
+      },
+      {
+        "elements": [
+          "air",
+          "light"
+        ],
+        "element": "water",
+        "dragonID": "tide"
+      },
+      {
+        "elements": [
+          "air",
+          "metal"
+        ],
+        "element": "earth",
+        "dragonID": "pebble"
+      },
+      {
+        "elements": [
+          "air",
+          "star"
+        ],
+        "element": "lightning",
+        "dragonID": "spark"
+      },
+      {
+        "elements": [
+          "lightning",
+          "plant"
+        ],
+        "element": "fire",
+        "dragonID": "blaze"
+      },
+      {
+        "elements": [
+          "lightning",
+          "ice"
+        ],
+        "element": "water",
+        "dragonID": "tide"
+      },
+      {
+        "elements": [
+          "lightning",
+          "light"
+        ],
+        "element": "earth",
+        "dragonID": "pebble"
+      },
+      {
+        "elements": [
+          "lightning",
+          "metal"
+        ],
+        "element": "air",
+        "dragonID": "breeze"
+      },
+      {
+        "elements": [
+          "lightning",
+          "star"
+        ],
+        "element": "plant",
+        "dragonID": "fern"
+      },
+      {
+        "elements": [
+          "plant",
+          "ice"
+        ],
+        "element": "earth",
+        "dragonID": "pebble"
+      },
+      {
+        "elements": [
+          "plant",
+          "light"
+        ],
+        "element": "air",
+        "dragonID": "breeze"
+      },
+      {
+        "elements": [
+          "plant",
+          "metal"
+        ],
+        "element": "lightning",
+        "dragonID": "spark"
+      },
+      {
+        "elements": [
+          "plant",
+          "star"
+        ],
+        "element": "ice",
+        "dragonID": "frost"
+      },
+      {
+        "elements": [
+          "ice",
+          "light"
+        ],
+        "element": "lightning",
+        "dragonID": "spark"
+      },
+      {
+        "elements": [
+          "ice",
+          "metal"
+        ],
+        "element": "plant",
+        "dragonID": "fern"
+      },
+      {
+        "elements": [
+          "ice",
+          "star"
+        ],
+        "element": "light",
+        "dragonID": "gleam"
+      },
+      {
+        "elements": [
+          "light",
+          "metal"
+        ],
+        "element": "ice",
+        "dragonID": "frost"
+      },
+      {
+        "elements": [
+          "light",
+          "star"
+        ],
+        "element": "metal",
+        "dragonID": "rivet"
+      },
+      {
+        "elements": [
+          "metal",
+          "star"
+        ],
+        "element": "fire",
+        "dragonID": "blaze"
+      }
+    ],
+    "fallback": {
+      "element": "star",
+      "dragonID": "twinkle"
+    }
+  },
+  "incubation": {
+    "buildings": {
+      "hatchery": {
+        "slots": 3,
+        "seconds": 900
+      },
+      "incubator_hatchery": {
+        "slots": 2,
+        "seconds": 300
+      }
+    }
+  },
+  "hatching": {
+    "level": 1,
+    "energy": 100
+  },
+  "leveling": {
+    "foodPerFeed": 20,
+    "xpPerFeed": 25,
+    "maxLevel": 20,
+    "xpTable": [
+      40,
+      50,
+      60,
+      75,
+      90,
+      110,
+      130,
+      160,
+      195,
+      240,
+      290,
+      355,
+      435,
+      530,
+      645,
+      790,
+      965,
+      1175,
+      1435
+    ]
+  },
+  "growth": {
+    "stages": [
+      {
+        "id": "baby",
+        "minLevel": 1,
+        "scale": 0.72,
+        "tintHex": "#FFF3D6",
+        "tintStrength": 0.12
+      },
+      {
+        "id": "juvenile",
+        "minLevel": 5,
+        "scale": 0.88
+      },
+      {
+        "id": "adult",
+        "minLevel": 10,
+        "scale": 1.0
+      }
+    ]
+  }
+}

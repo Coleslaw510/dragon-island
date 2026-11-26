@@ -697,13 +697,14 @@ def build_catalog(manifest: dict) -> dict:
         "texture": f"habitat_{element}",
         "capacity": seed["elements"][element]["habitatCapacity"],
         "buildCost": seed["elements"][element]["habitatCost"],
-        "unlockLevel": 1,
+        "unlockLevel": seed["elements"][element]["unlockLevel"],
         "goldPerHour": seed["elements"][element]["goldPerHour"],
         "goldCap": seed["elements"][element]["goldCap"],
     } for element in order]
 
     return {
         "schemaVersion": 1,
+        "economy": seed["economy"],
         "elementOrder": order,
         "elements": elements,
         "dragons": dragons,

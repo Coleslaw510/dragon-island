@@ -46,7 +46,7 @@ enum SaveStateFactory {
         return IslandSaveState(
             schemaVersion: GameConfig.saveSchemaVersion,
             playerName: "Keeper",
-            islandLevel: 1,
+            islandLevel: max(1, dragons.map(\.level).max() ?? 1),
             resources: .starter,
             ownedDragons: dragons,
             placedBuildings: placements,
@@ -55,7 +55,9 @@ enum SaveStateFactory {
             lastSeenAt: now,
             lastCollectionAt: now,
             unlockedElements: catalog.elementOrder,
-            didCompleteTutorial: false
+            didCompleteTutorial: false,
+            breedingSessions: nil,
+            eggs: nil
         )
     }
 }

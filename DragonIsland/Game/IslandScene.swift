@@ -84,6 +84,7 @@ final class IslandScene: SKScene {
         let node = IslandWorldBuilder.makeNode(
             state: store.state,
             catalog: store.catalog,
+            rules: store.rules,
             grid: grid,
             loader: loader
         )

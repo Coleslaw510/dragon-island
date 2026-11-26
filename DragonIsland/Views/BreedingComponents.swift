@@ -1,0 +1,82 @@
+import SwiftUI
+
+/// One selectable parent dragon in the breeding sheet.
+struct BreedingParentCard: View {
+    let dragon: OwnedDragon
+    let definition: DragonDefinition?
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        let element = definition?.element ?? .fire
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(element.badgeTexture)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 26, height: 26)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(dragon.nickname)
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    Text("\(element.rawValue.capitalized) · Lv \(dragon.level)")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                Spacer(minLength: 0)
+            }
+            .foregroundStyle(.white)
+            .padding(9)
+            .background(.white.opacity(selected ? 0.20 : 0.08),
+                        in: RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(selected ? Color.orange : Color.white.opacity(0.10),
+                                  lineWidth: selected ? 2 : 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Active breeding pair with a countdown or a waiting-for-slot note.
+struct BreedingSessionRow: View {
+    let session: BreedingSession
+    let parentA: String
+    let parentB: String
+    let now: Date
+
+    var body: some View {
+        let ready = session.isReady(now: now)
+        HStack(spacing: 10) {
+            Image("egg_\(session.egg.element.rawValue)")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 28, height: 28)
+            Text("\(parentA) + \(parentB)")
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(.white.opacity(0.85))
+            Spacer(minLength: 0)
+            Text(ready ? "Egg waiting for a hatchery slot"
+                       : TimeFormat.short(session.readyAt.timeIntervalSince(now)))
+                .font(.caption)
+                .foregroundStyle(ready ? Color.green : Color.white.opacity(0.6))
+        }
+        .padding(9)
+        .background(.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+/// Small icon + amount cost chip.
+struct BreedingCostChip: View {
+    let icon: String
+    let value: Int
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(icon).resizable().scaledToFit().frame(width: 16, height: 16)
+            Text("\(value)")
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+        }
+        .foregroundStyle(.white.opacity(0.82))
+    }
+}

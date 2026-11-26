@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// Minimal resource bar.  Future milestones can wire the round buttons to
-/// breeding, hatching and battle screens; they are intentionally inert today.
+/// Minimal resource bar.  Breeding, hatching and the dragon book open calm
+/// sheets; Battle stays disabled until a later milestone.
 struct TopHudView: View {
     @ObservedObject var store: GameStateStore
+    @State private var sheet: HudSheet?
 
     var body: some View {
         HStack(spacing: 8) {
@@ -14,17 +15,10 @@ struct TopHudView: View {
 
             Spacer(minLength: 12)
 
-            ForEach(HudAction.allCases) { action in
-                Button(action: {}) {
-                    Image(action.icon)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 22, height: 22)
-                }
-                .buttonStyle(HudButtonStyle())
-                .disabled(true)
-                .accessibilityLabel(Text("\(action.title). Coming in a later milestone."))
-            }
+            actionButton(.breed)
+            actionButton(.hatch)
+            actionButton(.battle)
+            actionButton(.codex)
 
             Button(action: store.save) {
                 Image("icon_settings_gear")
@@ -37,6 +31,32 @@ struct TopHudView: View {
         }
         .padding(.horizontal, 18)
         .padding(.top, 10)
+        .sheet(item: $sheet) { item in
+            switch item {
+            case .breeding:
+                BreedingDenView(store: store)
+            case .hatchery:
+                HatcheryView(store: store)
+            case .codex:
+                DragonBookView(store: store)
+            }
+        }
+    }
+
+    private func actionButton(_ action: HudAction) -> some View {
+        let enabled = action.isEnabled
+        return Button {
+            sheet = action.sheet
+        } label: {
+            Image(action.icon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 22, height: 22)
+        }
+        .buttonStyle(HudButtonStyle())
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.4)
+        .accessibilityLabel(Text(action.accessibility))
     }
 }
 
@@ -75,6 +95,12 @@ private struct HudButtonStyle: ButtonStyle {
     }
 }
 
+private enum HudSheet: String, Identifiable {
+    case breeding, hatchery, codex
+
+    var id: String { rawValue }
+}
+
 private enum HudAction: String, CaseIterable, Identifiable {
     case breed, hatch, battle, codex
 
@@ -96,5 +122,23 @@ private enum HudAction: String, CaseIterable, Identifiable {
         case .battle: return "Battle"
         case .codex: return "Dragon book"
         }
+    }
+
+    var sheet: HudSheet? {
+        switch self {
+        case .breed: return .breeding
+        case .hatch: return .hatchery
+        case .codex: return .codex
+        case .battle: return nil
+        }
+    }
+
+    var isEnabled: Bool {
+        if case .battle = self { return false }
+        return true
+    }
+
+    var accessibility: String {
+        isEnabled ? title : "\(title). Coming in a later milestone."
     }
 }

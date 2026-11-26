@@ -1,5 +1,8 @@
 {
   "schemaVersion": 1,
+  "economy": {
+    "habitatGoldBubbleFraction": 0.1
+  },
   "elementOrder": [
     "fire",
     "water",
@@ -288,7 +291,7 @@
       "texture": "habitat_lightning",
       "capacity": 4,
       "buildCost": 450,
-      "unlockLevel": 1,
+      "unlockLevel": 2,
       "goldPerHour": 800,
       "goldCap": 280
     },
@@ -310,7 +313,7 @@
       "texture": "habitat_ice",
       "capacity": 4,
       "buildCost": 500,
-      "unlockLevel": 1,
+      "unlockLevel": 2,
       "goldPerHour": 840,
       "goldCap": 300
     },
@@ -321,7 +324,7 @@
       "texture": "habitat_light",
       "capacity": 4,
       "buildCost": 550,
-      "unlockLevel": 1,
+      "unlockLevel": 3,
       "goldPerHour": 840,
       "goldCap": 300
     },
@@ -332,7 +335,7 @@
       "texture": "habitat_metal",
       "capacity": 4,
       "buildCost": 550,
-      "unlockLevel": 1,
+      "unlockLevel": 4,
       "goldPerHour": 880,
       "goldCap": 320
     },
@@ -343,7 +346,7 @@
       "texture": "habitat_star",
       "capacity": 4,
       "buildCost": 600,
-      "unlockLevel": 1,
+      "unlockLevel": 5,
       "goldPerHour": 880,
       "goldCap": 320
     }
@@ -359,7 +362,8 @@
         1,
         1
       ],
-      "description": "Hatches eggs into new dragons."
+      "description": "Hatches eggs into new dragons.",
+      "unlockLevel": 1
     },
     {
       "id": "food_farm",
@@ -375,7 +379,8 @@
       "growSeconds": 300,
       "harvestFood": 100,
       "plantCost": 20,
-      "sproutFraction": 0.4
+      "sproutFraction": 0.4,
+      "unlockLevel": 1
     },
     {
       "id": "breeding_corral",
@@ -387,7 +392,8 @@
         1,
         1
       ],
-      "description": "Pairs two dragons for breeding."
+      "description": "Pairs two dragons for breeding.",
+      "unlockLevel": 1
     },
     {
       "id": "breeding_den",
@@ -399,7 +405,8 @@
         1,
         1
       ],
-      "description": "A cozy den for breeding pairs."
+      "description": "A cozy den for breeding pairs.",
+      "unlockLevel": 3
     },
     {
       "id": "incubator_hatchery",
@@ -411,7 +418,8 @@
         1,
         1
       ],
-      "description": "Speeds up egg incubation."
+      "description": "Speeds up egg incubation.",
+      "unlockLevel": 5
     }
   ],
   "starterLayout": [

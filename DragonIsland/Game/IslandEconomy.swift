@@ -5,6 +5,7 @@ enum PlacementFailure: String, Error, Sendable {
     case tileOccupied
     case unknownDefinition
     case insufficientGold
+    case locked
 
     var message: String {
         switch self {
@@ -12,6 +13,7 @@ enum PlacementFailure: String, Error, Sendable {
         case .tileOccupied: return "That plot is already taken."
         case .unknownDefinition: return "That structure is unavailable."
         case .insufficientGold: return "Not enough gold."
+        case .locked: return "That structure is still locked."
         }
     }
 }
@@ -21,9 +23,12 @@ struct HabitatStatus: Sendable {
     let definition: HabitatDefinition
     let occupants: [OwnedDragon]
     let pendingGold: Int
+    let bubbleThreshold: Int
     let secondsUntilReady: TimeInterval?
+    let secondsUntilBubble: TimeInterval?
 
-    var isReady: Bool { pendingGold >= definition.goldCap && definition.goldCap > 0 }
+    var canCollect: Bool { pendingGold >= 1 }
+    var showsBubble: Bool { bubbleThreshold > 0 && pendingGold >= bubbleThreshold }
     var occupancyText: String { "\(occupants.count)/\(definition.capacity) dragons" }
 }
 
@@ -42,20 +47,32 @@ enum IslandEconomy {
     }
 
     static func status(for habitat: PlacedBuilding, state: IslandSaveState,
-                       catalog: GameCatalog, now: Date) -> HabitatStatus? {
+                       catalog: GameCatalog, now: Date,
+                       bubbleFraction: Double) -> HabitatStatus? {
         guard habitat.kind == .habitat,
               let definition = catalog.habitat(habitat.definitionID) else { return nil }
         let occupants = occupants(of: habitat, state: state, catalog: catalog)
         let pending = pendingGold(habitat: habitat, definition: definition,
                                   occupantCount: occupants.count, now: now)
+        let threshold = bubbleThreshold(definition: definition, fraction: bubbleFraction)
         return HabitatStatus(
             placement: habitat,
             definition: definition,
             occupants: occupants,
             pendingGold: pending,
+            bubbleThreshold: threshold,
             secondsUntilReady: secondsUntilReady(pending: pending, definition: definition,
-                                                occupantCount: occupants.count)
+                                                occupantCount: occupants.count),
+            secondsUntilBubble: secondsUntilBubble(pending: pending, threshold: threshold,
+                                                  definition: definition,
+                                                  occupantCount: occupants.count)
         )
+    }
+
+    static func bubbleThreshold(definition: HabitatDefinition, fraction: Double) -> Int {
+        guard definition.goldCap > 0 else { return 0 }
+        let clamped = min(max(fraction, 0), 1)
+        return max(1, Int((Double(definition.goldCap) * clamped).rounded(.up)))
     }
 
     static func pendingGold(habitat: PlacedBuilding, definition: HabitatDefinition,
@@ -77,28 +94,13 @@ enum IslandEconomy {
         return TimeInterval(remaining) / Double(rate) * 3600
     }
 
-    /// Credits gold that accumulated while the app was away.  Habitats keep
-    /// their cap, so a long absence can never overpay.
-    @discardableResult
-    static func collectOfflineGold(_ state: inout IslandSaveState, catalog: GameCatalog,
-                                   now: Date) -> Int {
-        var total = 0
-        for index in state.placedBuildings.indices {
-            let placement = state.placedBuildings[index]
-            guard placement.kind == .habitat,
-                  let definition = catalog.habitat(placement.definitionID) else { continue }
-            let count = occupants(of: placement, state: state, catalog: catalog).count
-            let pending = pendingGold(habitat: placement, definition: definition,
-                                      occupantCount: count, now: now)
-            guard pending > 0 else { continue }
-            total += pending
-            state.placedBuildings[index].lastCollectedAt = now
-        }
-        if total > 0 {
-            state.resources.gold += total
-            state.lastCollectionAt = now
-        }
-        return total
+    static func secondsUntilBubble(pending: Int, threshold: Int,
+                                   definition: HabitatDefinition,
+                                   occupantCount: Int) -> TimeInterval? {
+        guard threshold > 0, pending < threshold else { return nil }
+        let rate = definition.goldPerHour * occupantCount
+        guard rate > 0 else { return nil }
+        return TimeInterval(threshold - pending) / Double(rate) * 3600
     }
 
     // MARK: - Placement
@@ -129,6 +131,42 @@ enum IslandEconomy {
 
     static func placement(at tile: TileCoordinate, state: IslandSaveState) -> PlacedBuilding? {
         state.placedBuildings.first { $0.tile == tile }
+    }
+
+    static func unlockLevel(kind: PlacementKind, definitionID: String,
+                            catalog: GameCatalog) -> Int? {
+        switch kind {
+        case .habitat:
+            return catalog.habitat(definitionID)?.unlockLevel
+        case .farm, .building:
+            return catalog.building(definitionID)?.requiredLevel
+        }
+    }
+
+    static func isUnlocked(kind: PlacementKind, definitionID: String,
+                           catalog: GameCatalog, islandLevel: Int) -> Bool {
+        guard let required = unlockLevel(kind: kind, definitionID: definitionID, catalog: catalog)
+        else { return false }
+        return islandLevel >= required
+    }
+
+    /// Nearest free plot for a newly hatched dragon, so it does not stand on
+    /// top of a building or another dragon.
+    static func freeTile(near tile: TileCoordinate, state: IslandSaveState) -> TileCoordinate {
+        let grid = IslandGrid()
+        var best = tile
+        var bestDistance = Int.max
+        for candidate in grid.allTiles {
+            guard placement(at: candidate, state: state) == nil,
+                  !state.ownedDragons.contains(where: { $0.tile == candidate })
+            else { continue }
+            let distance = abs(candidate.x - tile.x) + abs(candidate.y - tile.y)
+            if distance < bestDistance {
+                bestDistance = distance
+                best = candidate
+            }
+        }
+        return best
     }
 
     // MARK: - Dragon assignments

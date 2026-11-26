@@ -37,7 +37,7 @@ struct BuildPanelView: View {
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
             Spacer()
-            Text("Plot \(interaction.selectedTile.x),\(interaction.selectedTile.y)")
+            Text("Lv \(store.state.islandLevel) · Plot \(interaction.selectedTile.x),\(interaction.selectedTile.y)")
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundStyle(.white.opacity(0.62))
         }
@@ -50,7 +50,7 @@ struct BuildPanelView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(interaction.displayName(for: placed))
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    Text(detail(for: placed, now: context.date))
+                    Text(PlacementStatusText.detail(for: placed, store: store, now: context.date))
                         .font(.system(size: 11, weight: .regular, design: .rounded))
                         .foregroundStyle(.white.opacity(0.74))
                         .fixedSize(horizontal: false, vertical: true)
@@ -68,7 +68,7 @@ struct BuildPanelView: View {
     }
 
     private var actionRow: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { _ in
+        TimelineView(.periodic(from: .now, by: 1)) { context in
             HStack(spacing: 7) {
                 if let placed = interaction.selectedPlacement {
                     if placed.kind == .farm && placed.plantedAt == nil {
@@ -76,8 +76,12 @@ struct BuildPanelView: View {
                             interaction.plantSelectedFarm()
                         }
                     }
-                    if isReady(placed) {
-                        smallButton(placed.kind == .farm ? "Harvest" : "Collect gold", enabled: true) {
+                    if PlacementStatusText.isHatchable(placed, store: store, now: context.date) {
+                        smallButton("Hatch", enabled: true) {
+                            interaction.hatchSelected()
+                        }
+                    } else if PlacementStatusText.canCollect(placed, store: store, now: context.date) {
+                        smallButton(collectTitle(for: placed), enabled: true) {
                             interaction.collectSelected()
                         }
                     }
@@ -93,31 +97,7 @@ struct BuildPanelView: View {
     @ViewBuilder
     private var buildRow: some View {
         if interaction.selectedPlacement == nil {
-            HStack(spacing: 7) {
-                Menu {
-                    ForEach(store.catalog.habitats) { habitat in
-                        Button("\(habitat.displayName)  ·  \(habitat.buildCost) gold") {
-                            interaction.build(kind: .habitat, definitionID: habitat.id)
-                        }
-                        .disabled(!interaction.canBuild(kind: .habitat, definitionID: habitat.id))
-                    }
-                } label: {
-                    menuLabel("Build habitat")
-                }
-
-                Menu {
-                    ForEach(store.catalog.buildings) { building in
-                        Button("\(building.displayName)  ·  \(building.cost) gold") {
-                            interaction.build(kind: building.isFarm ? .farm : .building,
-                                              definitionID: building.id)
-                        }
-                        .disabled(!interaction.canBuild(kind: building.isFarm ? .farm : .building,
-                                                        definitionID: building.id))
-                    }
-                } label: {
-                    menuLabel("Build structure")
-                }
-            }
+            BuildMenuRow(store: store, interaction: interaction)
         } else {
             Text("Move this piece, or tap an empty plot to build.")
                 .font(.system(size: 11, weight: .regular, design: .rounded))
@@ -137,77 +117,13 @@ struct BuildPanelView: View {
         }
     }
 
-    // MARK: - Status text
-
-    private func detail(for placed: PlacedBuilding, now: Date) -> String {
+    private func collectTitle(for placed: PlacedBuilding) -> String {
         switch placed.kind {
-        case .habitat:
-            return habitatDetail(placed, now: now)
-        case .farm:
-            return farmDetail(placed, now: now)
-        case .building:
-            return store.catalog.building(placed.definitionID)?.description ?? "Idle for now."
+        case .farm: return "Harvest"
+        case .habitat: return "Collect gold"
+        case .building: return "Collect"
         }
     }
-
-    private func habitatDetail(_ placed: PlacedBuilding, now: Date) -> String {
-        guard let status = IslandEconomy.status(for: placed, state: store.state,
-                                                catalog: store.catalog, now: now) else {
-            return "Habitat"
-        }
-        if status.occupants.isEmpty {
-            return "\(status.occupancyText) · no gold income"
-        }
-        if status.isReady {
-            return "\(status.occupancyText) · gold ready: \(status.pendingGold)"
-        }
-        var text = "\(status.occupancyText) · gold \(status.pendingGold)/\(status.definition.goldCap)"
-        if let seconds = status.secondsUntilReady {
-            text += " · ready in \(timeText(seconds))"
-        }
-        return text
-    }
-
-    private func farmDetail(_ placed: PlacedBuilding, now: Date) -> String {
-        guard let definition = store.catalog.building(placed.definitionID), definition.isFarm else {
-            return "Food farm"
-        }
-        let stage = FarmGrowth.stage(for: placed, catalog: store.catalog, now: now)
-        switch stage {
-        case .empty:
-            return "Empty soil. Plant for \(definition.plantCost ?? 0) gold."
-        case .plantedSprouts, .growingCrops:
-            let remaining = FarmGrowth.secondsRemaining(plantedAt: placed.plantedAt,
-                                                         definition: definition, now: now) ?? 0
-            return "Growing · \(timeText(remaining)) left · yields \(definition.harvestFood ?? 0) food"
-        case .ready:
-            return "Ready to harvest · \(definition.harvestFood ?? 0) food"
-        }
-    }
-
-    private func isReady(_ placed: PlacedBuilding) -> Bool {
-        switch placed.kind {
-        case .habitat:
-            return IslandEconomy.status(for: placed, state: store.state,
-                                        catalog: store.catalog, now: .now)?.isReady == true
-        case .farm:
-            return FarmGrowth.stage(for: placed, catalog: store.catalog, now: .now) == .ready
-        case .building:
-            return false
-        }
-    }
-
-    private func timeText(_ interval: TimeInterval) -> String {
-        let total = max(0, Int(interval.rounded(.up)))
-        let hours = total / 3600
-        let minutes = (total % 3600) / 60
-        let seconds = total % 60
-        if hours > 0 { return "\(hours)h \(minutes)m" }
-        if minutes > 0 { return "\(minutes)m \(seconds)s" }
-        return "\(seconds)s"
-    }
-
-    // MARK: - Small views
 
     private func smallButton(_ title: String, enabled: Bool,
                              action: @escaping () -> Void) -> some View {
@@ -222,14 +138,5 @@ struct BuildPanelView: View {
         .buttonStyle(.plain)
         .disabled(!enabled)
         .opacity(enabled ? 1 : 0.45)
-    }
-
-    private func menuLabel(_ title: String) -> some View {
-        Text(title)
-            .font(.system(size: 11, weight: .semibold, design: .rounded))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(.white.opacity(0.16), in: Capsule())
     }
 }
