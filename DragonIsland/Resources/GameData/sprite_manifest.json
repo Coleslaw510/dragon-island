@@ -233,7 +233,7 @@
       "element": "lightning",
       "frameSize": {
         "width": 175,
-        "height": 144
+        "height": 143
       },
       "animations": {
         "idle": {
@@ -290,7 +290,7 @@
       "element": "plant",
       "frameSize": {
         "width": 193,
-        "height": 137
+        "height": 135
       },
       "animations": {
         "idle": {
@@ -347,7 +347,7 @@
       "element": "ice",
       "frameSize": {
         "width": 176,
-        "height": 138
+        "height": 137
       },
       "animations": {
         "idle": {

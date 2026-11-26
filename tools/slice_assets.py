@@ -118,36 +118,104 @@ def strip_edge_bands(rgb: np.ndarray, alpha: np.ndarray, zone: int = 64) -> np.n
     return out
 
 
-def strip_grid_lines(alpha: np.ndarray) -> np.ndarray:
-    """Erase full-length 1-3 px rules drawn on some sheets."""
+def axis_runs(flags: np.ndarray, max_len: int, expand: int = 1) -> list[tuple[int, int]]:
+    """Short True runs, widened by ``expand`` so a 1-2 px rule covers both edges."""
+    runs, start = [], None
+    for index, flag in enumerate(np.append(flags, False)):
+        if flag and start is None:
+            start = index
+        elif not flag and start is not None:
+            if index - start <= max_len:
+                runs.append((max(0, start - expand), min(len(flags), index + expand)))
+            start = None
+    return runs
+
+
+def strip_grid_lines(rgb: np.ndarray, alpha: np.ndarray) -> np.ndarray:
+    """Erase thin rules and soft painted bands without cutting through sprites."""
     out = alpha.copy()
     height, width = out.shape
     solid = out > 0.45
 
-    def clear_runs(profile: np.ndarray, extent: int, vertical: bool) -> None:
-        hot = profile > 0.55 * extent
-        start = None
-        for index, flag in enumerate(np.append(hot, False)):
-            if flag and start is None:
-                start = index
-            elif not flag and start is not None:
-                if index - start <= 3:
-                    lo, hi = max(0, start - 1), min(len(profile), index + 1)
-                    if vertical:
-                        out[:, lo:hi] = 0.0
-                    else:
-                        out[lo:hi, :] = 0.0
-                start = None
+    columns = np.zeros(width, dtype=bool)
+    rows = np.zeros(height, dtype=bool)
+    for start, stop in axis_runs(solid.sum(axis=0) > 0.55 * height, 3):
+        columns[start:stop] = True
+    for start, stop in axis_runs(solid.sum(axis=1) > 0.55 * width, 3):
+        rows[start:stop] = True
 
-    clear_runs(solid.sum(axis=0), height, vertical=True)
-    clear_runs(solid.sum(axis=1), width, vertical=False)
+    # Soft beige rules never reach full occupancy.  Flag thin columns of warm,
+    # low-saturation background tone that stand out from their neighbours.
+    high, low = rgb.max(axis=2), rgb.min(axis=2)
+    saturation = (high - low) / np.maximum(high, 1.0)
+    warm = (saturation < 0.22) & (high - low > 5) & (rgb[..., 0] >= rgb[..., 1] + 3) \
+        & (rgb[..., 1] >= rgb[..., 2] + 3) & (high > 100)
+    tone = warm & (out > 0.15)
+
+    def add_soft_rules(profile: np.ndarray, target: np.ndarray) -> None:
+        for start, stop in axis_runs(profile >= 0.25, 3, expand=0):
+            inside = float(profile[start:stop].mean())
+            outside = np.concatenate((profile[max(0, start - 6):start],
+                                      profile[stop:min(len(profile), stop + 6)]))
+            baseline = float(outside.mean()) if outside.size else 0.0
+            if inside >= 2.0 * max(baseline, 0.01):
+                target[max(0, start - 1):min(len(target), stop + 1)] = True
+
+    add_soft_rules(tone.mean(axis=0), columns)
+    add_soft_rules(tone.mean(axis=1), rows)
+
+    # Clear only rule pixels that have no artwork on either side.  A rule that
+    # crosses a sprite is covered by neighbouring solid columns and survives.
+    protected = solid.copy()
+    protected[:, columns] = False
+    protected = ndi.binary_dilation(protected, iterations=2)
+    out[columns[None, :] & ~protected] = 0.0
+
+    protected = solid.copy()
+    protected[rows, :] = False
+    protected = ndi.binary_dilation(protected, iterations=2)
+    out[rows[:, None] & ~protected] = 0.0
     return out
+
+
+def strip_dragon_labels(rgba: np.ndarray, alpha: np.ndarray) -> None:
+    """Remove titles and row labels that sit in the gaps between sprite rows."""
+    rows = detect_rows(alpha)
+    if not rows:
+        return
+    gaps = [(0, min(alpha.shape[0], rows[0][0] + 12))]
+    gaps += [(rows[i][1] + 1, rows[i + 1][0]) for i in range(len(rows) - 1)]
+    for y0, y1 in gaps:
+        if y1 <= y0:
+            continue
+        labels, _ = ndi.label(alpha[y0:y1] > 0.35)
+        for index, sl in enumerate(ndi.find_objects(labels)):
+            ys, xs = sl
+            area = int((labels[ys, xs] == index + 1).sum())
+            height = ys.stop - ys.start
+            if area < 30 or height < 7 or area >= 2500 or height >= 80:
+                continue
+            if y0 == 0:
+                # Labels that dip into the first row stay left of the artwork.
+                margin = 115 if y0 + ys.stop > rows[0][0] else 140
+                if xs.start >= margin and y0 + ys.stop > rows[0][0] - 4:
+                    continue
+            elif xs.start >= 140:
+                continue
+            pixels = rgba[y0:y1][labels == index + 1].astype(np.float32)
+            high = pixels.max(axis=1)
+            saturation = ((high - pixels.min(axis=1)) / np.maximum(high, 1.0)).mean()
+            if saturation >= 0.55 or high.mean() >= 180:
+                continue
+            region = labels[ys, xs] == index + 1
+            alpha[y0 + ys.start:y0 + ys.stop, xs.start:xs.stop][region] = 0.0
+            rgba[y0 + ys.start:y0 + ys.stop, xs.start:xs.stop][region] = 0
 
 
 def sheet_matte(asset_root: Path, relative_path: str) -> tuple[np.ndarray, np.ndarray]:
     rgb = read_rgb(asset_root / relative_path)
     rgba, alpha = build_matte(rgb)
-    return rgba, strip_grid_lines(strip_edge_bands(rgb, alpha))
+    return rgba, strip_grid_lines(rgb, strip_edge_bands(rgb, alpha))
 
 
 # --------------------------------------------------------------------------- #
@@ -307,7 +375,8 @@ def slice_animated(rgba: np.ndarray, alpha: np.ndarray, row_count: int, col_coun
 
 
 def slice_items(rgba: np.ndarray, alpha: np.ndarray, row_bands: list[tuple[int, int]],
-                cols_per_row: list[int], names_per_row: list[list[str]]) -> list:
+                cols_per_row: list[int], names_per_row: list[list[str]],
+                near_pad: int | None = None) -> list:
     """Tightly crop independent world/UI sprites, one per cell."""
     frames = []
     for row, ncols, names in zip(row_bands, cols_per_row, names_per_row):
@@ -320,7 +389,7 @@ def slice_items(rgba: np.ndarray, alpha: np.ndarray, row_bands: list[tuple[int, 
             box = (x0, row[0], x1 - x0 + 1, row[1] - row[0] + 1)
             rgb_box = paste_box(rgba, box)
             alpha_box = paste_box(alpha[..., None], box)[..., 0]
-            bbox = content_bbox(alpha_box, ITEM_MIN_AREA) or (0, 0, box[2], box[3])
+            bbox = content_bbox(alpha_box, ITEM_MIN_AREA, near_pad) or (0, 0, box[2], box[3])
             crop = (slice(max(0, bbox[1] - 4), min(box[3], bbox[3] + 4)),
                     slice(max(0, bbox[0] - 4), min(box[2], bbox[2] + 4)))
             frames.append((name, rgba_image(rgb_box[crop], alpha_box[crop])))
@@ -389,6 +458,7 @@ def export_dragons(asset_root: Path, manifest: dict) -> dict:
     for sheet in manifest["dragons"]["sheets"]:
         dragon_id = sheet["id"]
         rgba, alpha = sheet_matte(asset_root, sheet["file"])
+        strip_dragon_labels(rgba, alpha)
         frames, (width, height) = slice_animated(
             rgba, alpha, len(states), DRAGON_COLS,
             lambda row, col, did=dragon_id: f"dragon_{did}_{states[row]}_{col}",
@@ -451,7 +521,8 @@ def export_world(asset_root: Path, manifest: dict) -> dict:
     bands = rows_or_nominal(alpha, eggs_rows + build_rows, min_height=80)
     egg_names = [f"egg_{element}" for element in eggs["elements"]]
     save_frames(slice_items(rgba, alpha, bands[:eggs_rows], [eggs_cols] * eggs_rows,
-                            [egg_names[i:i + eggs_cols] for i in range(0, len(egg_names), eggs_cols)]), "World")
+                            [egg_names[i:i + eggs_cols] for i in range(0, len(egg_names), eggs_cols)],
+                            near_pad=5), "World")
     textures["eggs"].update(zip(eggs["elements"], egg_names))
     building_names = [f"building_{name}" for name in buildings["buildings"]]
     save_frames(slice_items(rgba, alpha, bands[eggs_rows:], [build_cols] * build_rows, [building_names]), "World")
